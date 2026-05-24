@@ -37,7 +37,6 @@
         .form-group input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; }
         .btn { background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
         
-        /* Стили для превью загруженного фото */
         .preview-box { width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin-top: 5px; overflow: hidden; }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
     </style>
@@ -84,13 +83,13 @@
                         <span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>
                     </div>
                 </div>
-                <button type="submit" class="btn">Добавить в каталог</button>
+                <button type="submit" id="submitBtn" class="btn">Добавить в каталог</button>
             </form>
         </div>
     </div>
 
     <script>
-        let base64ImageString = ""; // Переменная для хранения закодированного фото
+        let base64ImageString = ""; 
 
         async function serverRequest(options = {}) {
             const url = '/api/products';
@@ -100,18 +99,38 @@
             return response.json();
         }
 
-        // Обработка выбора файла и конвертация в Base64
+        // Автоматическое сжатие изображения перед конвертацией в Base64
         document.getElementById('pImgFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(event) {
-                base64ImageString = event.target.result; // Получаем готовую Base64 строку
-                
-                // Показываем превью картинки в форме
-                const previewContainer = document.getElementById('previewContainer');
-                previewContainer.innerHTML = `<img src="${base64ImageString}" alt="Превью">`;
+                const img = new Image();
+                img.onload = function() {
+                    // Создаем виртуальный холст для изменения размера картинки
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400; // Оптимальная ширина для мобильных
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Сжимаем до качества 0.7 (70%) — визуально разницы нет, а вес копейки
+                    base64ImageString = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    const previewContainer = document.getElementById('previewContainer');
+                    previewContainer.innerHTML = `<img src="${base64ImageString}" alt="Превью">`;
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
@@ -164,15 +183,19 @@
 
         document.getElementById('addProductForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('submitBtn');
             const title = document.getElementById('pName').value;
             const price = parseFloat(document.getElementById('pPrice').value);
 
             if (!base64ImageString) {
-                alert('Пожалуйста, дождитесь загрузки фотографии!');
+                alert('Пожалуйста, выберите изображение товара!');
                 return;
             }
 
             try {
+                btn.disabled = true;
+                btn.innerText = '⏳ Отправка...';
+
                 await serverRequest({
                     method: 'POST',
                     body: JSON.stringify({ title, price, image: base64ImageString })
@@ -181,7 +204,7 @@
                 alert('✅ Товар успешно добавлен!');
                 document.getElementById('addProductForm').reset();
                 document.getElementById('previewContainer').innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>';
-                base64ImageString = ""; // Сбрасываем строку
+                base64ImageString = ""; 
                 document.getElementById('adminBlock').classList.add('hidden');
                 
                 document.getElementById('catalogDisplay').classList.add('hidden');
@@ -189,8 +212,11 @@
                 document.getElementById('loaderStatus').classList.remove('hidden');
                 loadProducts();
             } catch (error) {
-                alert('❌ Ошибка при добавлении товара.');
+                alert('❌ Ошибка сети. Попробуйте еще раз.');
                 console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Добавить в каталог';
             }
         });
 
