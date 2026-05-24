@@ -13,167 +13,29 @@
             --text-muted: #6b7280;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); padding-bottom: 60px; }
+        header { background: var(--card-background); padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
 
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            padding-bottom: 60px;
-        }
-
-        header {
-            background: var(--card-background);
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            border-bottom: 1px solid #e5e7eb;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .container {
-            padding: 15px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Состояния загрузки и ошибок */
-        .status-layer {
-            text-align: center;
-            padding: 40px 20px;
-            background: var(--card-background);
-            border-radius: 12px;
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
+        .status-layer { text-align: center; padding: 40px 20px; background: var(--card-background); border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .hidden { display: none !important; }
+        .spinner { border: 3px solid #f3f4f6; border-top: 3px solid var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px auto;
-        }
+        .catalog { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .product-card { background: var(--card-background); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .product-img { width: 100%; height: 140px; object-fit: cover; background: #e5e7eb; }
+        .product-info { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .product-price { color: var(--primary-color); font-weight: bold; font-size: 1rem; margin-top: auto; }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Сетка каталога */
-        .catalog {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .product-card {
-            background: var(--card-background);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            background: #e5e7eb;
-        }
-
-        .product-info {
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .product-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-            height: 36px;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .product-price {
-            color: var(--primary-color);
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: auto;
-        }
-
-        /* Кнопка админки */
-        .admin-trigger {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            background: #374151;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-
-        /* Простая форма входа/панели */
-        .admin-panel {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-top: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-            color: var(--text-muted);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            width: 100%;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .admin-trigger { position: fixed; bottom: 15px; right: 15px; background: #374151; color: white; padding: 10px 15px; border-radius: 20px; font-size: 0.8rem; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; }
+        .admin-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; }
+        .btn { background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -184,15 +46,15 @@
         <div id="statusLayer" class="status-layer">
             <div id="loaderStatus">
                 <div class="spinner"></div>
-                <p>⏳ Подключение к безопасной базе данных...</p>
+                <p>⏳ Загрузка каталога товаров...</p>
             </div>
             <div id="errorStatus" class="hidden">
-                <p style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">⚠️ Ошибка подключения</p>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Не удалось загрузить данные. Перезапустите базу в панели или проверьте VPN при разработке.</p>
+                <p style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">⚠️ Ошибка загрузки</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Не удалось связаться с сервером. Пожалуйста, обновите страницу.</p>
             </div>
             <div id="emptyStatus" class="hidden">
                 <p>📦 Каталог товаров пока пуст.</p>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Перейдите в админку, чтобы добавить первый товар.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Нажмите кнопку «Управление» снизу, чтобы добавить первый товар.</p>
             </div>
         </div>
 
@@ -201,20 +63,8 @@
         <a href="#" id="toggleAdminBtn" class="admin-trigger">Управление</a>
 
         <div id="adminBlock" class="admin-panel hidden">
-            <h3 style="margin-bottom: 15px;" id="adminTitle">Вход в панель</h3>
-            <form id="authForm">
-                <div class="form-group">
-                    <label>Логин (Email)</label>
-                    <input type="email" id="adminEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Пароль</label>
-                    <input type="password" id="adminPassword" required>
-                </div>
-                <button type="submit" class="btn">Войти</button>
-            </form>
-
-            <form id="addProductForm" class="hidden">
+            <h3 style="margin-bottom: 15px;" id="adminTitle">Добавление товара</h3>
+            <form id="addProductForm">
                 <div class="form-group">
                     <label>Название товара</label>
                     <input type="text" id="pName" required>
@@ -233,26 +83,14 @@
     </div>
 
     <script>
-        // АКТУАЛЬНАЯ КОНФИГУРАЦИЯ БАЗЫ ДАННЫХ SUPABASE
-        const SUPABASE_URL = "https://tewshpcmudtkbosuqxry.supabase.co"; //
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRld3NocGNtdWR0a2Jvc3VxeHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxNjY3MzAsImV4cCI6MjA2Mzc0MjczMH0.Sb_publishable_gGTgFBsHSMpPkTqGlBXk8w_bjokjvqq"; //
-
-        // Базовый обработчик запросов (прокси-совместимый)
-        async function supabaseRequest(endpoint, options = {}) {
-            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
-            const headers = {
-                "apikey": SUPABASE_ANON_KEY,
-                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation"
-            };
-            
+        async function serverRequest(options = {}) {
+            const url = '/api/products';
+            const headers = { "Content-Type": "application/json" };
             const response = await fetch(url, { ...options, headers });
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             return response.json();
         }
 
-        // Загрузка товаров из базы данных
         async function loadProducts() {
             const loaderStatus = document.getElementById('loaderStatus');
             const errorStatus = document.getElementById('errorStatus');
@@ -261,9 +99,7 @@
             const catalogDisplay = document.getElementById('catalogDisplay');
 
             try {
-                // Запрашиваем таблицу products, сортируем по id
-                const products = await supabaseRequest('products?select=*&order=id.desc');
-                
+                const products = await serverRequest({ method: 'GET' });
                 loaderStatus.classList.add('hidden');
                 
                 if (!products || products.length === 0) {
@@ -288,29 +124,17 @@
                     catalogDisplay.appendChild(card);
                 });
             } catch (error) {
-                console.error("Database connection failure:", error);
+                console.error(error);
                 loaderStatus.classList.add('hidden');
                 errorStatus.classList.remove('hidden');
             }
         }
 
-        // Логика переключения на админ-панель
         document.getElementById('toggleAdminBtn').addEventListener('click', (e) => {
             e.preventDefault();
-            const adminBlock = document.getElementById('adminBlock');
-            adminBlock.classList.toggle('hidden');
+            document.getElementById('adminBlock').classList.toggle('hidden');
         });
 
-        // Демо-авторизация (локальная сверка для простоты, пока настраиваем базу)
-        document.getElementById('authForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            // В будущем здесь будет полноценный Supabase Auth. Пока делаем пропуск к форме добавления.
-            document.getElementById('authForm').classList.add('hidden');
-            document.getElementById('adminTitle').innerText = "Панель добавления товара";
-            document.getElementById('addProductForm').classList.remove('hidden');
-        });
-
-        // Добавление нового товара в базу
         document.getElementById('addProductForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('pName').value;
@@ -318,7 +142,7 @@
             const image = document.getElementById('pImg').value;
 
             try {
-                await supabaseRequest('products', {
+                await serverRequest({
                     method: 'POST',
                     body: JSON.stringify({ title, price, image })
                 });
@@ -327,18 +151,16 @@
                 document.getElementById('addProductForm').reset();
                 document.getElementById('adminBlock').classList.add('hidden');
                 
-                // Перезагружаем витрину, чтобы увидеть новый товар
                 document.getElementById('catalogDisplay').classList.add('hidden');
                 document.getElementById('statusLayer').classList.remove('hidden');
                 document.getElementById('loaderStatus').classList.remove('hidden');
                 loadProducts();
             } catch (error) {
-                alert('❌ Ошибка при сохранении товара в базу данных.');
+                alert('❌ Ошибка при добавлении товара.');
                 console.error(error);
             }
         });
 
-        // Инициализация при загрузке страницы
         window.addEventListener('DOMContentLoaded', loadProducts);
     </script>
 </body>
