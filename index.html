@@ -39,6 +39,9 @@
         
         .preview-box { width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin-top: 5px; overflow: hidden; }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Стили для фиксации критических ошибок прямо на экране */
+        .critical-error-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: left; font-size: 0.9rem; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -46,6 +49,8 @@
     <header>TM-STORE</header>
 
     <div class="container">
+        <div id="criticalErrorDisplay" class="critical-error-box hidden"></div>
+
         <div id="statusLayer" class="status-layer">
             <div id="loaderStatus">
                 <div class="spinner"></div>
@@ -53,7 +58,7 @@
             </div>
             <div id="errorStatus" class="hidden">
                 <p style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">⚠️ Ошибка загрузки</p>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Не удалось связаться с сервером. Пожалуйста, обновите страницу.</p>
+                <p id="errorText" style="font-size: 0.9rem; color: var(--text-muted);">Не удалось связаться с сервером.</p>
             </div>
             <div id="emptyStatus" class="hidden">
                 <p>📦 Каталог товаров пока пуст.</p>
@@ -66,7 +71,7 @@
         <a href="#" id="toggleAdminBtn" class="admin-trigger">Управление</a>
 
         <div id="adminBlock" class="admin-panel hidden">
-            <h3 style="margin-bottom: 15px;" id="adminTitle">Добавление товара</h3>
+            <h3 style="margin-bottom: 15px;">Добавление товара</h3>
             <form id="addProductForm">
                 <div class="form-group">
                     <label>Название товара</label>
@@ -95,11 +100,18 @@
             const url = '/api/products';
             const headers = { "Content-Type": "application/json" };
             const response = await fetch(url, { ...options, headers });
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            
+            if (!response.ok) {
+                let errText = `HTTP ${response.status}`;
+                try {
+                    const errData = await response.json();
+                    if (errData.error) errText += ` - ${errData.error}`;
+                } catch(e) {}
+                throw new Error(errText);
+            }
             return response.json();
         }
 
-        // Автоматическое сжатие изображения перед конвертацией в Base64
         document.getElementById('pImgFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -108,9 +120,8 @@
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    // Создаем виртуальный холст для изменения размера картинки
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 400; // Оптимальная ширина для мобильных
+                    const MAX_WIDTH = 300; 
                     let width = img.width;
                     let height = img.height;
 
@@ -124,8 +135,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Сжимаем до качества 0.7 (70%) — визуально разницы нет, а вес копейки
-                    base64ImageString = canvas.toDataURL('image/jpeg', 0.7);
+                    base64ImageString = canvas.toDataURL('image/jpeg', 0.6);
                     
                     const previewContainer = document.getElementById('previewContainer');
                     previewContainer.innerHTML = `<img src="${base64ImageString}" alt="Превью">`;
@@ -161,7 +171,7 @@
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
-                        <img class="product-img" src="${product.image || 'https://via.placeholder.com/150'}" alt="${product.title}">
+                        <img class="product-img" src="${product.image || ''}" alt="${product.title}">
                         <div class="product-info">
                             <div class="product-title">${product.title}</div>
                             <div class="product-price">${product.price} TMT</div>
@@ -172,6 +182,7 @@
             } catch (error) {
                 console.error(error);
                 loaderStatus.classList.add('hidden');
+                document.getElementById('errorText').innerText = error.message;
                 errorStatus.classList.remove('hidden');
             }
         }
@@ -186,15 +197,17 @@
             const btn = document.getElementById('submitBtn');
             const title = document.getElementById('pName').value;
             const price = parseFloat(document.getElementById('pPrice').value);
+            const errBox = document.getElementById('criticalErrorDisplay');
 
             if (!base64ImageString) {
-                alert('Пожалуйста, выберите изображение товара!');
+                alert('Пожалуйста, выберите фото!');
                 return;
             }
 
             try {
                 btn.disabled = true;
                 btn.innerText = '⏳ Отправка...';
+                errBox.classList.add('hidden'); // Прячем прошлую ошибку, если была
 
                 await serverRequest({
                     method: 'POST',
@@ -207,13 +220,14 @@
                 base64ImageString = ""; 
                 document.getElementById('adminBlock').classList.add('hidden');
                 
-                document.getElementById('catalogDisplay').classList.add('hidden');
-                document.getElementById('statusLayer').classList.remove('hidden');
-                document.getElementById('loaderStatus').classList.remove('hidden');
                 loadProducts();
             } catch (error) {
-                alert('❌ Ошибка сети. Попробуйте еще раз.');
-                console.error(error);
+                // ВАЖНО: Ошибка теперь железно застынет на экране в красной рамке!
+                errBox.innerText = `🚨 ОШИБКА ПРИ ДОБАВЛЕНИИ:\n${error.message}\n\n(Страница остановлена, сделайте скриншот)`;
+                errBox.classList.remove('hidden');
+                
+                // Прячем экран загрузки, чтобы он не перекрывал ошибку
+                document.getElementById('statusLayer').classList.add('hidden');
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'Добавить в каталог';
