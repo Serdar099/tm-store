@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#111111">
+    <title>TM-Store | Настоящий Бэкенд</title>
+    <!-- Официальный клиент Supabase для связи с базой данных -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --primary: #111111;
+            --accent: #ff2a6d;
+            --text: #2c3e50;
+            --muted: #8a98a5;
+            --success: #00cc66;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 30px; overflow-x: hidden; }
+
+        header {
+            background: var(--primary); color: white; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .menu-btn { font-size: 24px; background: none; border: none; color: white; cursor: pointer; }
+        .logo { font-size: 18px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+        
+        .side-menu {
+            position: fixed; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100%;
+            background: var(--surface); box-shadow: 5px 0 25px rgba(0,0,0,0.2); z-index: 200;
+            transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1); padding: 24px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .side-menu.active { left: 0; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 199; display: none; }
+        .close-menu { align-self: flex-end; font-size: 24px; border: none; background: none; margin-bottom: 20px; cursor: pointer; }
+        .menu-item {
+            padding: 14px 18px; background: #f8f9fa; border-radius: 12px; text-decoration: none; color: var(--text); font-weight: 600;
+            text-align: left; border: none; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer;
+        }
+        .menu-item:active { background: var(--primary); color: white; }
+
+        .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 20px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .search-wrapper { position: relative; margin-bottom: 16px; }
+        .search-input { width: 100%; padding: 14px 16px; border: 1px solid #e1e8ed; border-radius: 14px; outline: none; font-size: 15px; background: var(--surface); }
+        
+        .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab { padding: 8px 16px; background: var(--surface); border: 1px solid #e1e8ed; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .product-card { background: var(--surface); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: relative; display: flex; flex-direction: column; }
+        .img-container { position: relative; width: 100%; padding-top: 110%; background: #eaeff2; cursor: pointer; }
+        .product-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .card-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; gap: 6px; cursor: pointer; }
+        .card-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .card-price { font-size: 15px; font-weight: 800; color: var(--primary); }
+        .card-status { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; display: inline-block; width: max-content; }
+        .status-in_stock { background: #e6fcf5; color: #0ca678; }
+        .status-sold { background: #fff5f5; color: #ff6b6b; }
+        
+        .fav-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor: pointer; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: flex-end; z-index: 300; }
+        .modal-content { background: var(--surface); border-radius: 24px 24px 0 0; width: 100%; max-width: 600px; padding: 24px; position: relative; max-height: 85vh; overflow-y: auto; }
+        .modal-close { position: absolute; top: 16px; right: 16px; font-size: 20px; border: none; background: #f0f2f5; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
+        .modal-img { width: 100%; height: 250px; object-fit: cover; border-radius: 16px; margin-top: 15px; }
+        .btn-group { display: flex; gap: 8px; margin-top: 16px; }
+        .btn-imo { flex: 1; background: #00a2ff; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; text-align: center; text-decoration: none;}
+
+        form { background: var(--surface); padding: 16px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 12px; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e1e8ed; border-radius: 10px; font-size: 14px; outline: none; background: #f8f9fa; }
+        label { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: -6px; }
+        .submit-btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+
+        .admin-item { background: var(--surface); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .del-btn { background: #ff3b30; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .loading-cover { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:999; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:18px; }
+    </style>
+</head>
+<body>
+
+    <div id="loadingCover" class="loading-cover">⏳ Подключение к базе данных PostgreSQL...</div>
+
+    <header>
+        <button class="menu-btn" onclick="toggleMenu(true)">☰</button>
+        <div class="logo" onclick="navigate('home')">TM-STORE</div>
+        <div style="width: 24px;"></div>
+    </header>
+
+    <div class="menu-overlay" id="overlay" onclick="toggleMenu(false)"></div>
+
+    <div class="side-menu" id="sideMenu">
+        <button class="close-menu" onclick="toggleMenu(false)">✕</button>
+        <button class="menu-item" onclick="navigate('home')">🛍️ Главная / Новинки</button>
+        <button class="menu-item" onclick="navigate('favorites')">❤️ Мне понравилось</button>
+        <button class="menu-item" onclick="navigate('admin-auth')">⚙️ Админ-панель</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
+        <div id="homePage" class="page active">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" id="searchBar" placeholder="Поиск вещей..." oninput="handleSearch()">
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="filterCategory('all', this)">Все категории</div>
+                <div class="tab" onclick="filterCategory('Очки', this)">🕶️ Очки</div>
+                <div class="tab" onclick="filterCategory('Женская одежда', this)">👗 Женская одежда</div>
+                <div class="tab" onclick="filterCategory('Туфли', this)">👠 Туфли</div>
+                <div class="tab" onclick="filterCategory('Разное', this)">📦 Разное</div>
+            </div>
+
+            <h2>🔥 Актуальный каталог</h2>
+            <div class="products-grid" id="mainGrid"></div>
+        </div>
+
+        <!-- ИЗБРАННОЕ -->
+        <div id="favoritesPage" class="page">
+            <h2>❤️ Мне понравилось</h2>
+            <div class="products-grid" id="favGrid"></div>
+        </div>
+
+        <!-- СТРАНИЦА ВХОДА -->
+        <div id="adminAuthPage" class="page">
+            <h2>🔒 Вход в панель администратора</h2>
+            <p style="font-size: 13px; color: gray; margin-bottom: 12px;">Войдите, используя почту и пароль, созданные в Supabase Auth.</p>
+            <form onsubmit="authAdmin(event)">
+                <input type="email" id="adminEmail" placeholder="Ваша почта (Email)" required>
+                <input type="password" id="adminPass" placeholder="Ваш пароль" required>
+                <button type="submit" class="submit-btn">Защищенный вход</button>
+            </form>
+        </div>
+
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+        <div id="adminPanelPage" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h2>⚙️ Панель управления (Защита RLS)</h2>
+                <button onclick="logoutAdmin()" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer;">Выйти</button>
+            </div>
+            
+            <form id="addProdForm" onsubmit="saveNewProduct(event)">
+                <h3>Добавить товар на server</h3>
+                <input type="text" id="newTitle" placeholder="Название товара" required>
+                <input type="number" id="newPrice" placeholder="Цена (TMT)" required>
+                
+                <select id="newCat">
+                    <option value="Очки">🕶️ Очки</option>
+                    <option value="Женская одежда">👗 Женская одежда</option>
+                    <option value="Туфли">👠 Туфли</option>
+                    <option value="Разное">📦 Разное</option>
+                </select>
+
+                <select id="newStatus">
+                    <option value="in_stock">В наличии</option>
+                    <option value="sold">Продано</option>
+                </select>
+
+                <label>Фото товара *</label>
+                <input type="file" id="newFile" accept="image/*" onchange="uploadPhoto(this)">
+                <input type="hidden" id="newImgUrl">
+                <div id="uploadStatus" style="font-size: 12px; color: var(--success); font-weight: bold;"></div>
+
+                <textarea id="newDesc" rows="3" placeholder="Описание товара..."></textarea>
+                <button type="submit" class="submit-btn" style="background:var(--success)">Опубликовать</button>
+            </form>
+
+            <h3 style="margin: 24px 0 10px 0;">📦 Список товаров в базе</h3>
+            <div id="adminProducts"></div>
+        </div>
+
+    </div>
+
+    <!-- КАРТОЧКА ДЕТАЛЕЙ -->
+    <div class="modal" id="productModal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal(null)">✕</button>
+            <img id="mImg" class="modal-img" src="" alt="">
+            <h2 id="mTitle" style="margin-top:12px;"></h2>
+            <div id="mStatus" class="card-status" style="margin-bottom: 8px;"></div>
+            <p id="mDesc" style="margin: 12px 0; font-size: 14px; line-height: 1.5; color: #555;"></p>
+            <div id="mPrice" style="font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 10px;"></div>
+            
+            <div class="btn-group">
+                <a class="btn-imo" id="imoBtn" href="#">🟢 Быстрый заказ через IMO</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ИНЖЕНЕРНЫЙ ОПТИМИЗИРОВАННЫЙ БЭКЕНД ДЛЯ ТУРКМЕНИСТАНА
+        const SUPABASE_URL = "https://tewshpcmudtkbosuqxry.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_gGTgFBsHSMpPkTqGlBXk8w_bjokjvqq"; 
+        const MY_IMO_NUMBER = "+99362453929"; 
+
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let productsList = [];
+        let currentCategory = "all";
+        let favorites = JSON.parse(localStorage.getItem('tm_favs_sql')) || [];
+
+        async function loadDatabase() {
+            try {
+                let { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('id', { ascending: false });
+                
+                if (error) throw error;
+                productsList = data || [];
+                document.getElementById('loadingCover').style.display = 'none';
+                renderGrid();
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loadingCover').innerText = "⚠️ Ошибка структуры таблиц или RLS политик.";
+            }
+        }
+
+        function toggleMenu(open) {
+            document.getElementById('sideMenu').classList.toggle('active', open);
+            document.getElementById('overlay').style.display = open ? 'block' : 'none';
+        }
+
+        async function navigate(pageId) {
+            toggleMenu(false);
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            if(pageId === 'home') document.getElementById('homePage').classList.add('active');
+            if(pageId === 'favorites') { document.getElementById('favoritesPage').classList.add('active'); renderFavGrid(); }
+            if(pageId === 'admin-auth') {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    document.getElementById('adminPanelPage').classList.add('active');
+                    renderAdminLists();
+                } else {
+                    document.getElementById('adminAuthPage').classList.add('active');
+                }
+            }
+        }
+
+        async function authAdmin(e) {
+            e.preventDefault();
+            document.getElementById('loadingCover').style.display = 'flex';
+            document.getElementById('loadingCover').innerText = "🔐 Проверка сессии на сервере...";
+            
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPass').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            document.getElementById('loadingCover').style.display = 'none';
+            if (error) {
+                alert(`Ошибка авторизации: ${error.message}`);
+            } else {
+                document.getElementById('adminAuthPage').classList.remove('active');
+                document.getElementById('adminPanelPage').classList.add('active');
+                renderAdminLists();
+            }
+        }
+
+        async function logoutAdmin() {
+            await supabase.auth.signOut();
+            navigate('home');
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '';
+            let filtered = productsList;
+            if(currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
+
+            if(filtered.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:30px; color:gray;">Каталог пуст. Добавьте первый товар через админку!</p>';
+                return;
+            }
+
+            filtered.forEach(p => {
+                const isFav = favorites.includes(p.id) ? '❤️' : '🤍';
+                const statusTxt = p.status === 'in_stock' ? 'В наличии' : 'Продано';
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <button class="fav-btn" onclick="toggleFav(event, ${p.id})">${isFav}</button>
+                    <div class="img-container" onclick="openDetails(${p.id})"><img src="${p.img}" class="product-img" loading="lazy"></div>
+                    <div class="card-info" onclick="openDetails(${p.id})">
+                        <div class="card-title">${p.title}</div>
+                        <span class="card-status status-${p.status}">${statusTxt}</span>
+                        <div class="card-price">${p.price} TMT</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderFavGrid() {
+            const grid = document.getElementById('favGrid');
+            grid.innerHTML = '';
+            let favItems = productsList.filter(p => favorites.includes(p.id));
+            if(favItems.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:gray; padding:30px;">Нет избранных элементов.</p>';
+                return;
+            }
+            favItems.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="img-container" onclick="openDetails(${p.id})"><img src="${p.img}" class="product-img"></div>
+                    <div class="card-info" onclick="openDetails(${p.id})">
+                        <div class="card-title">${p.title}</div>
+                        <div class="card-price">${p.price} TMT</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function handleSearch() {
+            let val = document.getElementById('searchBar').value.toLowerCase();
+            document.querySelectorAll('#mainGrid .product-card').forEach(card => {
+                let title = card.querySelector('.card-title').innerText.toLowerCase();
+                card.style.display = title.includes(val) ? 'flex' : 'none';
+            });
+        }
+
+        function filterCategory(cat, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active'); currentCategory = cat; renderGrid();
+        }
+
+        function toggleFav(e, id) {
+            e.stopPropagation();
+            favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
+            localStorage.setItem('tm_favs_sql', JSON.stringify(favorites));
+            renderGrid();
+        }
+
+        function openDetails(id) {
+            let p = productsList.find(x => x.id === id);
+            if(!p) return;
+
+            document.getElementById('mImg').src = p.img;
+            document.getElementById('mTitle').innerText = p.title;
+            document.getElementById('mDesc').innerText = p.desc_text || 'Описание отсутствует.';
+            document.getElementById('mPrice').innerText = `${p.price} TMT`;
+            
+            let statusBadge = document.getElementById('mStatus');
+            statusBadge.innerText = p.status === 'in_stock' ? 'В наличии' : 'Продано';
+            statusBadge.className = `card-status status-${p.status}`;
+
+            let textOrder = `Здравствуйте! Хочу заказать товар:\n— ${p.title}\nЦена: ${p.price} TMT.`;
+            const imoBtn = document.getElementById('imoBtn');
+            
+            imoBtn.onclick = (e) => {
+                navigator.clipboard.writeText(textOrder).then(() => {
+                    alert("Описание товара скопировано!\n\nСейчас откроется IMO — отправьте этот текст мне в сообщения.");
+                });
+            };
+            imoBtn.href = `tel:${MY_IMO_NUMBER}`;
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeModal(e) {
+            if(!e || e.target === document.getElementById('productModal')) document.getElementById('productModal').style.display = 'none';
+        }
+
+        function uploadPhoto(input) {
+            let file = input.files[0];
+            if(!file) return;
+            document.getElementById('uploadStatus').innerText = "⏳ Оптимизация изображения под слабый интернет...";
+            
+            let reader = new FileReader();
+            reader.onloadend = function() {
+                let img = new Image();
+                img.src = reader.result;
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('2d');
+                    let max_width = 400; 
+                    let scale = max_width / img.width;
+                    canvas.width = max_width; canvas.height = img.height * scale;
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    document.getElementById('newImgUrl').value = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('uploadStatus').innerText = "✅ Фото пережато и готово к ультра-быстрой отправке!";
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+
+        async function saveNewProduct(e) {
+            e.preventDefault();
+            let imgData = document.getElementById('newImgUrl').value;
+            if(!imgData) { alert("Загрузите фото товара!"); return; }
+
+            document.getElementById('loadingCover').style.display = 'flex';
+            document.getElementById('loadingCover').innerText = "⚡ Синхронизация с сервером PostgreSQL...";
+
+            let newP = {
+                title: document.getElementById('newTitle').value,
+                price: parseFloat(document.getElementById('newPrice').value),
+                category: document.getElementById('newCat').value,
+                status: document.getElementById('newStatus').value,
+                desc_text: document.getElementById('newDesc').value,
+                img: imgData
+            };
+
+            const { data, error } = await supabase.from('products').insert([newP]);
+
+            if (error) {
+                alert(`Ошибка базы данных (проверьте RLS): ${error.message}`);
+                document.getElementById('loadingCover').style.display = 'none';
+            } else {
+                document.getElementById('addProdForm').reset();
+                document.getElementById('newImgUrl').value = '';
+                document.getElementById('uploadStatus').innerText = "";
+                alert("Успешно! Товар мгновенно сохранен на удаленном SQL сервере.");
+                await loadDatabase();
+                renderAdminLists();
+            }
+        }
+
+        function renderAdminLists() {
+            let pDiv = document.getElementById('adminProducts'); pDiv.innerHTML = '';
+            productsList.forEach(p => {
+                let row = document.createElement('div'); row.className = 'admin-item';
+                row.innerHTML = `<span><strong>${p.title}</strong> — ${p.price} TMT</span><button class="del-btn" onclick="deleteProduct(${p.id})">Удалить</button>`;
+                pDiv.appendChild(row);
+            });
+        }
+
+        async function deleteProduct(id) {
+            if(confirm("Вы уверены, что хотите удалить этот товар из облака PostgreSQL?")) {
+                document.getElementById('loadingCover').style.display = 'flex';
+                const { error } = await supabase.from('products').delete().eq('id', id);
+                if (error) {
+                    alert(`Ошибка удаления: ${error.message}`);
+                } else {
+                    await loadDatabase();
+                    renderAdminLists();
+                }
+            }
+        }
+
+        loadDatabase();
+    </script>
+</body>
+</html>
