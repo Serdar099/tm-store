@@ -36,6 +36,10 @@
         .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-muted); }
         .form-group input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; }
         .btn { background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
+        
+        /* Стили для превью загруженного фото */
+        .preview-box { width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin-top: 5px; overflow: hidden; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
@@ -74,8 +78,11 @@
                     <input type="number" id="pPrice" required>
                 </div>
                 <div class="form-group">
-                    <label>Ссылка на фото товара</label>
-                    <input type="url" id="pImg" placeholder="https://..." required>
+                    <label>Фотография товара (из галереи)</label>
+                    <input type="file" id="pImgFile" accept="image/*" required style="padding: 5px 0;">
+                    <div class="preview-box" id="previewContainer">
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>
+                    </div>
                 </div>
                 <button type="submit" class="btn">Добавить в каталог</button>
             </form>
@@ -83,6 +90,8 @@
     </div>
 
     <script>
+        let base64ImageString = ""; // Переменная для хранения закодированного фото
+
         async function serverRequest(options = {}) {
             const url = '/api/products';
             const headers = { "Content-Type": "application/json" };
@@ -90,6 +99,22 @@
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             return response.json();
         }
+
+        // Обработка выбора файла и конвертация в Base64
+        document.getElementById('pImgFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                base64ImageString = event.target.result; // Получаем готовую Base64 строку
+                
+                // Показываем превью картинки в форме
+                const previewContainer = document.getElementById('previewContainer');
+                previewContainer.innerHTML = `<img src="${base64ImageString}" alt="Превью">`;
+            };
+            reader.readAsDataURL(file);
+        });
 
         async function loadProducts() {
             const loaderStatus = document.getElementById('loaderStatus');
@@ -104,6 +129,8 @@
                 
                 if (!products || products.length === 0) {
                     emptyStatus.classList.remove('hidden');
+                    statusLayer.classList.remove('hidden');
+                    catalogDisplay.classList.add('hidden');
                     return;
                 }
 
@@ -139,16 +166,22 @@
             e.preventDefault();
             const title = document.getElementById('pName').value;
             const price = parseFloat(document.getElementById('pPrice').value);
-            const image = document.getElementById('pImg').value;
+
+            if (!base64ImageString) {
+                alert('Пожалуйста, дождитесь загрузки фотографии!');
+                return;
+            }
 
             try {
                 await serverRequest({
                     method: 'POST',
-                    body: JSON.stringify({ title, price, image })
+                    body: JSON.stringify({ title, price, image: base64ImageString })
                 });
 
                 alert('✅ Товар успешно добавлен!');
                 document.getElementById('addProductForm').reset();
+                document.getElementById('previewContainer').innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>';
+                base64ImageString = ""; // Сбрасываем строку
                 document.getElementById('adminBlock').classList.add('hidden');
                 
                 document.getElementById('catalogDisplay').classList.add('hidden');
