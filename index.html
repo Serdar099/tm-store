@@ -40,7 +40,6 @@
         .preview-box { width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin-top: 5px; overflow: hidden; }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Стили для фиксации критических ошибок прямо на экране */
         .critical-error-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: left; font-size: 0.9rem; word-break: break-all; }
     </style>
 </head>
@@ -94,36 +93,49 @@
     </div>
 
     <script>
-        let base64ImageString = ""; 
-
-        async function serverRequest(options = {}) {
-            const url = '/api/products';
-            const headers = { "Content-Type": "application/json" };
-            const response = await fetch(url, { ...options, headers });
-            
-            if (!response.ok) {
-                let errText = `HTTP ${response.status}`;
-                try {
-                    const errData = await response.json();
-                    if (errData.error) errText += ` - ${errData.error}`;
-                } catch(e) {}
-                throw new Error(errText);
+        // ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ОШИБОК ДЛЯ ЛЮБЫХ УСТРОЙСТВ
+        window.onerror = function(message, source, lineno, colno, error) {
+            var errBox = document.getElementById('criticalErrorDisplay');
+            if (errBox) {
+                errBox.innerText = "🚨 Сбой инициализации скрипта:\n" + message + "\nВ файле: " + source + "\nСтрока: " + lineno;
+                errBox.classList.remove('hidden');
             }
-            return response.json();
+            var loader = document.getElementById('statusLayer');
+            if (loader) loader.classList.add('hidden');
+            return false;
+        };
+
+        var base64ImageString = ""; 
+
+        function serverRequest(options) {
+            if (!options) options = {};
+            var url = '/api/products';
+            var headers = { "Content-Type": "application/json" };
+            
+            return fetch(url, {
+                method: options.method || 'GET',
+                headers: headers,
+                body: options.body || null
+            }).then(function(response) {
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+                return response.json();
+            });
         }
 
         document.getElementById('pImgFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+            var file = e.target.files[0];
             if (!file) return;
 
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(event) {
-                const img = new Image();
+                var img = new Image();
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 300; 
-                    let width = img.width;
-                    let height = img.height;
+                    var canvas = document.createElement('canvas');
+                    var MAX_WIDTH = 300; 
+                    var width = img.width;
+                    var height = img.height;
 
                     if (width > MAX_WIDTH) {
                         height *= MAX_WIDTH / width;
@@ -132,106 +144,102 @@
 
                     canvas.width = width;
                     canvas.height = height;
-                    const ctx = canvas.getContext('2d');
+                    var ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
                     base64ImageString = canvas.toDataURL('image/jpeg', 0.6);
                     
-                    const previewContainer = document.getElementById('previewContainer');
-                    previewContainer.innerHTML = `<img src="${base64ImageString}" alt="Превью">`;
+                    var previewContainer = document.getElementById('previewContainer');
+                    previewContainer.innerHTML = '<img src="' + base64ImageString + '" alt="Превью">';
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        async function loadProducts() {
-            const loaderStatus = document.getElementById('loaderStatus');
-            const errorStatus = document.getElementById('errorStatus');
-            const emptyStatus = document.getElementById('emptyStatus');
-            const statusLayer = document.getElementById('statusLayer');
-            const catalogDisplay = document.getElementById('catalogDisplay');
+        function loadProducts() {
+            var loaderStatus = document.getElementById('loaderStatus');
+            var errorStatus = document.getElementById('errorStatus');
+            var emptyStatus = document.getElementById('emptyStatus');
+            var statusLayer = document.getElementById('statusLayer');
+            var catalogDisplay = document.getElementById('catalogDisplay');
 
-            try {
-                const products = await serverRequest({ method: 'GET' });
-                loaderStatus.classList.add('hidden');
-                
-                if (!products || products.length === 0) {
-                    emptyStatus.classList.remove('hidden');
-                    statusLayer.classList.remove('hidden');
-                    catalogDisplay.classList.add('hidden');
-                    return;
-                }
+            serverRequest({ method: 'GET' })
+                .then(function(products) {
+                    loaderStatus.classList.add('hidden');
+                    
+                    if (!products || products.length === 0) {
+                        emptyStatus.classList.remove('hidden');
+                        statusLayer.classList.remove('hidden');
+                        catalogDisplay.classList.add('hidden');
+                        return;
+                    }
 
-                statusLayer.classList.add('hidden');
-                catalogDisplay.classList.remove('hidden');
-                catalogDisplay.innerHTML = '';
+                    statusLayer.classList.add('hidden');
+                    catalogDisplay.classList.remove('hidden');
+                    catalogDisplay.innerHTML = '';
 
-                products.forEach(product => {
-                    const card = document.createElement('div');
-                    card.className = 'product-card';
-                    card.innerHTML = `
-                        <img class="product-img" src="${product.image || ''}" alt="${product.title}">
-                        <div class="product-info">
-                            <div class="product-title">${product.title}</div>
-                            <div class="product-price">${product.price} TMT</div>
-                        </div>
-                    `;
-                    catalogDisplay.appendChild(card);
+                    products.forEach(function(product) {
+                        var card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = '<img class="product-img" src="' + (product.image || '') + '" alt="' + product.title + '">' +
+                            '<div class="product-info">' +
+                                '<div class="product-title">' + product.title + '</div>' +
+                                '<div class="product-price">' + product.price + ' TMT</div>' +
+                            '</div>';
+                        catalogDisplay.appendChild(card);
+                    });
+                })
+                .catch(function(error) {
+                    console.error(error);
+                    loaderStatus.classList.add('hidden');
+                    document.getElementById('errorText').innerText = error.message;
+                    errorStatus.classList.remove('hidden');
                 });
-            } catch (error) {
-                console.error(error);
-                loaderStatus.classList.add('hidden');
-                document.getElementById('errorText').innerText = error.message;
-                errorStatus.classList.remove('hidden');
-            }
         }
 
-        document.getElementById('toggleAdminBtn').addEventListener('click', (e) => {
+        document.getElementById('toggleAdminBtn').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('adminBlock').classList.toggle('hidden');
         });
 
-        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const title = document.getElementById('pName').value;
-            const price = parseFloat(document.getElementById('pPrice').value);
-            const errBox = document.getElementById('criticalErrorDisplay');
+            var btn = document.getElementById('submitBtn');
+            var title = document.getElementById('pName').value;
+            var price = parseFloat(document.getElementById('pPrice').value);
+            var errBox = document.getElementById('criticalErrorDisplay');
 
             if (!base64ImageString) {
                 alert('Пожалуйста, выберите фото!');
                 return;
             }
 
-            try {
-                btn.disabled = true;
-                btn.innerText = '⏳ Отправка...';
-                errBox.classList.add('hidden'); // Прячем прошлую ошибку, если была
+            btn.disabled = true;
+            btn.innerText = '⏳ Отправка...';
+            errBox.classList.add('hidden');
 
-                await serverRequest({
-                    method: 'POST',
-                    body: JSON.stringify({ title, price, image: base64ImageString })
-                });
-
+            serverRequest({
+                method: 'POST',
+                body: JSON.stringify({ title: title, price: price, image: base64ImageString })
+            })
+            .then(function() {
                 alert('✅ Товар успешно добавлен!');
                 document.getElementById('addProductForm').reset();
                 document.getElementById('previewContainer').innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>';
                 base64ImageString = ""; 
                 document.getElementById('adminBlock').classList.add('hidden');
-                
                 loadProducts();
-            } catch (error) {
-                // ВАЖНО: Ошибка теперь железно застынет на экране в красной рамке!
-                errBox.innerText = `🚨 ОШИБКА ПРИ ДОБАВЛЕНИИ:\n${error.message}\n\n(Страница остановлена, сделайте скриншот)`;
+            })
+            .catch(function(error) {
+                errBox.innerText = "🚨 ОШИБКА ПРИ ДОБАВЛЕНИИ:\n" + error.message;
                 errBox.classList.remove('hidden');
-                
-                // Прячем экран загрузки, чтобы он не перекрывал ошибку
                 document.getElementById('statusLayer').classList.add('hidden');
-            } finally {
+            })
+            .then(function() {
                 btn.disabled = false;
                 btn.innerText = 'Добавить в каталог';
-            }
+            });
         });
 
         window.addEventListener('DOMContentLoaded', loadProducts);
