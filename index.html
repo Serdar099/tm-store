@@ -3,71 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TM STORE</title>
+  <title>GÖZ Store | Premium Boutique</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GÖZ Store">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
+
   <style>
-    /* Премиальный минимализм: сброс стилей и шрифты */
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; }
-    body { background: #f8f9fa; color: #1d1d1f; padding-bottom: 60px; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+    body { background: #0b0b0c; color: #f5f5f7; padding-bottom: 60px; -webkit-font-smoothing: antialiased; }
     
-    /* Элегантный, чистый хедер */
-    header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #1d1d1f; padding: 18px; text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 2px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    header { 
+      background: rgba(18, 18, 19, 0.8); 
+      backdrop-filter: blur(25px); 
+      -webkit-backdrop-filter: blur(25px); 
+      color: #dfba6b; 
+      padding: 20px; 
+      text-align: center; 
+      font-size: 24px; 
+      font-weight: 900; 
+      letter-spacing: 5px; 
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+      border-bottom: 1px solid rgba(223, 186, 107, 0.15);
+      text-shadow: 0 2px 10px rgba(223, 186, 107, 0.2);
+    }
     
-    /* Стили для трендовых кнопок-капсул категорий */
-    .categories { display: flex; gap: 10px; padding: 16px 14px; overflow-x: auto; scrollbar-width: none; }
+    .categories { display: flex; gap: 12px; padding: 20px 14px; overflow-x: auto; scrollbar-width: none; }
     .categories::-webkit-scrollbar { display: none; }
-    .cat-btn { background: #ffffff; color: #515154; padding: 10px 20px; border-radius: 30px; border: none; font-size: 14px; cursor: pointer; white-space: nowrap; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.25s ease; }
-    .cat-btn.active { background: #1d1d1f; color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
+    .cat-btn { 
+      background: rgba(255, 255, 255, 0.04); 
+      color: #a1a1a6; 
+      padding: 12px 24px; 
+      border-radius: 30px; 
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      font-size: 14px; 
+      cursor: pointer; 
+      white-space: nowrap; 
+      font-weight: 600; 
+      transition: all 0.3s ease; 
+    }
+    .cat-btn.active { 
+      background: #dfba6b; 
+      color: #0b0b0c; 
+      border-color: #dfba6b;
+      box-shadow: 0 4px 20px rgba(223, 186, 107, 0.4); 
+      transform: translateY(-2px); 
+    }
 
     .container { max-width: 600px; margin: 0 auto; padding: 8px; }
-    .loading, .empty { text-align: center; padding: 60px 20px; color: #86868b; font-size: 15px; font-weight: 500; }
+    .loading, .empty { text-align: center; padding: 80px 20px; color: #86868b; font-size: 16px; font-weight: 500; }
     
-    /* Сетка товаров с дорогими карточками */
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .card { background: #ffffff; border-radius: 18px; padding: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid rgba(0,0,0,0.02); }
-    .card:active { transform: scale(0.98); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { 
+      background: #121214; 
+      border-radius: 22px; 
+      padding: 14px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between; 
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+      border: 1px solid rgba(255, 255, 255, 0.03); 
+      cursor: pointer; 
+    }
+    .card:active { transform: scale(0.96); border-color: rgba(223, 186, 107, 0.3); }
     
-    /* Контейнер для фото, чтобы они были идеально одинаковыми и сочными */
-    .card-img-wrap { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 12px; background: #f5f5f7; position: relative; }
-    .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .card-img-wrap { 
+      width: 100%; 
+      aspect-ratio: 1 / 1; 
+      overflow: hidden; 
+      border-radius: 16px; 
+      background: #1c1c1e; 
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+    .card img { width: 100%; height: 100%; object-fit: cover; }
     
-    .card-info { padding: 10px 4px 4px 4px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-    .card-title { font-size: 15px; font-weight: 600; color: #1d1d1f; line-height: 1.3; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 38px; }
-    .card-price { color: #1d1d1f; font-weight: 700; font-size: 16px; margin-bottom: 12px; letter-spacing: -0.5px; }
+    .card-info { padding: 12px 4px 2px 4px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+    .card-title { font-size: 15px; font-weight: 600; color: #f5f5f7; line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 42px; }
+    .card-price { color: #dfba6b; font-weight: 700; font-size: 17px; margin-bottom: 14px; letter-spacing: 0.5px; }
     
-    /* Матовая минималистичная кнопка */
-    .order-btn { background: #1d1d1f; color: #ffffff; border: none; width: 100%; padding: 11px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; letter-spacing: 0.3px; transition: background 0.2s; }
-    .order-btn:hover { background: #333336; }
+    .order-btn { 
+      background: rgba(255, 255, 255, 0.06); 
+      color: #f5f5f7; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      width: 100%; 
+      padding: 12px; 
+      border-radius: 12px; 
+      font-weight: 600; 
+      font-size: 13px; 
+      cursor: pointer; 
+      letter-spacing: 0.5px; 
+      transition: all 0.2s; 
+    }
 
-    /* РОСКОШНОЕ ПОЛНОЭКРАННОЕ ОКНО ИНФОРМАЦИИ (МОДАЛКА) */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
-    
-    /* Выезжает снизу, как на дорогих iOS приложениях */
-    .modal-box { background: #ffffff; border-radius: 24px 24px 0 0; width: 100%; max-width: 550px; padding: 24px; max-height: 85vh; overflow-y: auto; position: relative; animation: slideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
+    .modal-box { 
+      background: #121214; 
+      border-radius: 30px 30px 0 0; 
+      width: 100%; 
+      max-width: 550px; 
+      padding: 30px 24px 24px 24px; 
+      max-height: 85vh; 
+      overflow-y: auto; 
+      position: relative; 
+      animation: slideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
+      border-top: 1px solid rgba(223, 186, 107, 0.2);
+    }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     
-    /* Полоска сверху модалки в стиле iOS */
-    .modal-line { width: 40px; height: 5px; background: #e8e8ed; border-radius: 3px; margin: -10px auto 15px auto; }
-    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 24px; color: #86868b; cursor: pointer; border: none; background: #f5f5f7; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 300; }
+    .modal-line { width: 50px; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; margin: -15px auto 20px auto; }
+    .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; color: #a1a1a6; cursor: pointer; border: none; background: rgba(255, 255, 255, 0.05); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     
-    .modal-img-wrap { width: 100%; max-height: 280px; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 14px; background: #f5f5f7; margin-top: 10px; display: flex; justify-content: center; align-items: center; }
+    .modal-img-wrap { width: 100%; max-height: 280px; overflow: hidden; border-radius: 20px; background: #1c1c1e; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255, 255, 255, 0.05); }
     .modal-img { max-width: 100%; max-height: 100%; object-fit: contain; }
     
-    .modal-title { font-size: 20px; font-weight: 700; color: #1d1d1f; margin: 18px 0 6px 0; line-height: 1.3; }
-    .modal-price { font-size: 22px; color: #00b67a; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
+    .modal-title { font-size: 22px; font-weight: 700; color: #ffffff; margin: 20px 0 8px 0; line-height: 1.3; }
+    .modal-price { font-size: 26px; color: #dfba6b; font-weight: 800; margin-bottom: 20px; letter-spacing: 0.5px; }
     
-    .modal-desc-title { font-size: 13px; color: #86868b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .modal-desc { font-size: 15px; color: #424245; line-height: 1.5; margin-bottom: 24px; padding: 14px; border-radius: 12px; background: #f5f5f7; font-weight: 400; }
+    .modal-desc-title { font-size: 12px; color: #86868b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .modal-desc { font-size: 15px; color: #e1e1e6; line-height: 1.6; margin-bottom: 25px; padding: 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.02); }
     
-    .modal-box .order-btn { padding: 15px; font-size: 15px; border-radius: 12px; background: #1d1d1f; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .modal-box .order-btn { 
+      background: linear-gradient(135deg, #dfba6b 0%, #b89344 100%); 
+      color: #0b0b0c; 
+      padding: 16px; 
+      font-size: 16px; 
+      font-weight: 700; 
+      border: none; 
+      border-radius: 14px; 
+      box-shadow: 0 6px 25px rgba(223, 186, 107, 0.3); 
+      letter-spacing: 0.5px;
+    }
   </style>
 </head>
 <body>
 
-  <header>TM STORE</header>
+  <header>GÖZ STORE</header>
 
   <div class="container">
     <div class="categories">
-      <button class="cat-btn active" onclick="filterCategory('Все')">Все</button>
+      <button class="cat-btn active" onclick="filterCategory('Все')">Все коллекции</button>
       <button class="cat-btn" onclick="filterCategory('Очки')">Очки</button>
       <button class="cat-btn" onclick="filterCategory('Очки для зрения')">Очки для зрения</button>
       <button class="cat-btn" onclick="filterCategory('Женская одежда')">Женская одежда</button>
@@ -76,9 +155,9 @@
       <button class="cat-btn" onclick="filterCategory('Ремонт очков')">Ремонт очков</button>
     </div>
 
-    <div id="loading" class="loading">⏳ Синхронизация каталога...</div>
+    <div id="loading" class="loading">⏳ Загрузка лимитированной коллекции GÖZ...</div>
     <div id="catalog" class="grid" style="display: none;"></div>
-    <div id="empty" class="empty" style="display: none;">В этой категории пока нет товаров</div>
+    <div id="empty" class="empty" style="display: none;">В этой категории пока нет новинок</div>
   </div>
 
   <div id="productModal" class="modal-overlay" onclick="closeProductModal(event)">
@@ -93,16 +172,19 @@
       <div id="modalTitle" class="modal-title"></div>
       <div id="modalPrice" class="modal-price"></div>
       
-      <div class="modal-desc-title">Детали товара</div>
+      <div class="modal-desc-title">Эксклюзивные детали</div>
       <div id="modalDesc" class="modal-desc"></div>
       
-      <button class="order-btn">Оформить быстрый заказ</button>
+      <button class="order-btn" onclick="redirectToOrderForm()">Оформить премиум-заказ</button>
     </div>
   </div>
 
   <script>
     let allProducts = [];
     let currentCategory = 'Все';
+    let selectedItem = null;
+
+    const myGoogleFormUrl = 'https://forms.gle/xaLqWQnfCJRj2PH98';
 
     function cleanGoogleDriveLink(url) {
       if (!url) return '';
@@ -122,29 +204,37 @@
         allProducts = await res.json();
         renderCatalog();
       } catch (err) {
-        document.getElementById('loading').innerText = 'Не удалось загрузить витрину';
+        document.getElementById('loading').innerText = 'Не удалось загрузить коллекцию';
       }
     }
 
     function filterCategory(catName) {
       currentCategory = catName;
       document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText === catName);
+        const isAll = catName === 'Все' && btn.innerText === 'Все коллекции';
+        btn.classList.toggle('active', isAll || btn.innerText === catName);
       });
       renderCatalog();
     }
 
     function openProductModal(item) {
+      selectedItem = item;
       document.getElementById('modalImg').src = cleanGoogleDriveLink(item.image);
       document.getElementById('modalTitle').innerText = item.title;
       document.getElementById('modalPrice').innerText = `${item.price} TMT`;
-      document.getElementById('modalDesc').innerText = item.description || 'Описание не указано продавцом.';
+      document.getElementById('modalDesc').innerText = item.description || 'Описание премиального качества.';
       document.getElementById('productModal').style.display = 'flex';
     }
 
     function closeProductModal(event) {
       if(event.target.id === 'productModal') {
         document.getElementById('productModal').style.display = 'none';
+      }
+    }
+
+    function redirectToOrderForm() {
+      if (selectedItem) {
+        window.open(myGoogleFormUrl, '_blank');
       }
     }
 
@@ -187,6 +277,11 @@
         `;
         catalogDiv.appendChild(card);
       });
+    }
+
+    // Регистрация PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
 
     loadProducts();
