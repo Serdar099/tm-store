@@ -4,7 +4,6 @@ export default async function handler(req, res) {
   res.setHeader('Expires', '0');
 
   const supabaseUrl = 'https://tewshpcmudtkbosuqxry.supabase.co'; 
-  // Используем секретный мастер-ключ (service_role) для полного доступа к удалению
   const supabaseMasterKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRld3NocGNtdWR0a2Jvc3VxeHJ5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODEzNDA4MiwiZXhwIjoyMDUzNzEwMDgyfQ.zFv4o-K9Z8f9D5Ew1Cms6w3X_N6U4_9Hj9M4D1TqZ9Y';
 
   const targetUrl = `${supabaseUrl}/rest/v1/products`;
