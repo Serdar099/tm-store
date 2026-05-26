@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GÖZ Store | Панель Управления</title>
+  <title>GÖZ Store | Управление витриной</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
     body { background: #0b0b0c; color: #f5f5f7; padding: 20px 10px; -webkit-font-smoothing: antialiased; }
     
-    .admin-box { max-width: 500px; margin: 0 auto; background: #121214; border-radius: 24px; padding: 24px; border: 1px solid rgba(223, 186, 107, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    h1 { color: #dfba6b; font-size: 22px; font-weight: 900; text-align: center; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; }
+    .container { max-width: 550px; margin: 0 auto; }
+    .admin-box { background: #121214; border-radius: 24px; padding: 24px; border: 1px solid rgba(223, 186, 107, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 25px; }
+    h1, h2 { color: #dfba6b; font-size: 22px; font-weight: 900; text-align: center; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; }
+    h2 { font-size: 18px; margin-top: 10px; margin-bottom: 15px; text-align: left; border-left: 3px solid #dfba6b; padding-left: 10px; }
     
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; color: #86868b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -25,54 +27,119 @@
     #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; display: none; }
     .success { color: #00b67a; }
     .error { color: #ff453a; }
+
+    .products-list { display: flex; flex-direction: column; gap: 12px; }
+    .product-item { background: #121214; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .p-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+    .p-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #1c1c1e; flex-shrink: 0; }
+    .p-text { overflow: hidden; }
+    .p-title { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .p-price { font-size: 13px; color: #dfba6b; font-weight: 700; margin-top: 4px; }
+    .delete-btn { background: rgba(255, 69, 58, 0.1); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.2); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .delete-btn:active { background: #ff453a; color: #fff; }
   </style>
 </head>
 <body>
 
-  <div class="admin-box">
-    <h1>Добавить товар в GÖZ</h1>
+  <div class="container">
+    <div class="admin-box">
+      <h1>Добавить товар в GÖZ</h1>
+      
+      <form id="productForm" onsubmit="saveProduct(event)">
+        <div class="form-group">
+          <label>Название товара</label>
+          <input type="text" id="title" placeholder="Например: Очки Авиаторы Gold" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Категория</label>
+          <select id="category" required>
+            <option value="Очки">Очки</option>
+            <option value="Очки для зрения">Очки для зрения</option>
+            <option value="Женская одежда">Женская одежда</option>
+            <option value="Туфли">Туфли</option>
+            <option value="Сумочки">Сумочки</option>
+            <option value="Ремонт очков">Ремонт очков</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Цена (в TMT)</label>
+          <input type="number" id="price" placeholder="Цена без букв, например: 250" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Ссылка на фото (Google Диск)</label>
+          <input type="url" id="image" placeholder="Вставь ссылку на картинку товара" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Описание товара</label>
+          <textarea id="description" rows="3" placeholder="Укажи материал, размер или особенности товара..."></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">Опубликовать на витрину</button>
+        <div id="status"></div>
+      </form>
+    </div>
+
+    <div class="admin-box">
+      <h2>Текущий ассортимент</h2>
+      <div id="productsList" class="products-list">
+        <div style="text-align:center; color:#86868b; font-size:14px; padding:10px;">⏳ Загрузка списка товаров...</div>
+      </div>
+    </div>
     
-    <form id="productForm" onsubmit="saveProduct(event)">
-      <div class="form-group">
-        <label>Название товара</label>
-        <input type="text" id="title" placeholder="Например: Очки Авиаторы Gold" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Категория</label>
-        <select id="category" required>
-          <option value="Очки">Очки</option>
-          <option value="Очки для зрения">Очки для зрения</option>
-          <option value="Женская одежда">Женская одежда</option>
-          <option value="Туфли">Туфли</option>
-          <option value="Сумочки">Сумочки</option>
-          <option value="Ремонт очков">Ремонт очков</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label>Цена (в TMT)</label>
-        <input type="number" id="price" placeholder="Цена без букв, например: 250" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Ссылка на фото (Google Диск)</label>
-        <input type="url" id="image" placeholder="Вставь ссылку на картинку товара" required>
-      </div>
-      
-      <div class="form-group">
-        <label>Описание товара</label>
-        <textarea id="description" rows="3" placeholder="Укажи материал, размер или особенности товара..."></textarea>
-      </div>
-      
-      <button type="submit" class="submit-btn">Опубликовать на витрину</button>
-      <div id="status"></div>
-    </form>
-    
-    <a href="/" class="back-btn">← Вернуться в магазин</a>
+    <a href="/" class="back-btn">← Вернуться на главную витрину</a>
   </div>
 
   <script>
+    // Всеядная функция очистки ссылок Google Drive
+    function cleanGoogleDriveLink(url) {
+      if (!url) return '';
+      if (url.includes('drive.google.com')) {
+        let id = '';
+        if (url.includes('/file/d/')) { id = url.split('/file/d/')[1].split('/')[0]; }
+        else if (url.includes('/d/')) { id = url.split('/d/')[1].split('/')[0]; }
+        else if (url.includes('id=')) { id = url.split('id=')[1].split('&')[0]; }
+        if (id) return `https://docs.google.com/uc?export=view&id=${id}`;
+      }
+      return url;
+    }
+
+    async function fetchAdminProducts() {
+      const listDiv = document.getElementById('productsList');
+      try {
+        const res = await fetch('/api/products');
+        if (!res.ok) throw new Error();
+        const products = await res.json();
+        
+        if(products.length === 0) {
+          listDiv.innerHTML = '<div style="text-align:center; color:#86868b; font-size:14px; padding:10px;">На витрине пока нет товаров</div>';
+          return;
+        }
+
+        listDiv.innerHTML = '';
+        products.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'product-item';
+          row.innerHTML = `
+            <div class="p-info">
+              <img class="p-img" src="${cleanGoogleDriveLink(item.image)}" alt="">
+              <div class="p-text">
+                <div class="p-title">${item.title}</div>
+                <div class="p-price">${item.price} TMT</div>
+              </div>
+            </div>
+            <button class="delete-btn" onclick="deleteProduct('${item.id || item._id}', this)">Удалить</button>
+          `;
+          listDiv.appendChild(row);
+        });
+      } catch(err) {
+        listDiv.innerHTML = '<div style="text-align:center; color:#ff453a; font-size:14px; padding:10px;">Ошибка загрузки товаров</div>';
+      }
+    }
+
     async function saveProduct(event) {
       event.preventDefault();
       const statusDiv = document.getElementById('status');
@@ -97,16 +164,43 @@
 
         if (res.ok) {
           statusDiv.className = 'success';
-          statusDiv.innerText = '✅ Товар успешно добавлен на витрину!';
+          statusDiv.innerText = '✅ Товар успешно добавлен!';
           document.getElementById('productForm').reset();
+          fetchAdminProducts();
         } else {
-          throw new Error('Ошибка при сохранении');
+          throw new Error();
         }
       } catch (err) {
         statusDiv.className = 'error';
-        statusDiv.innerText = '❌ Не удалось добавить товар. Проверь базу данных.';
+        statusDiv.innerText = '❌ Не удалось добавить товар.';
       }
     }
+
+    async function deleteProduct(productId, btnElement) {
+      if (!confirm('Вы уверены, что хотите полностью удалить этот товар с витрины?')) return;
+      
+      const originalText = btnElement.innerText;
+      btnElement.innerText = '⏳...';
+      btnElement.disabled = true;
+
+      try {
+        const res = await fetch(`/api/products?id=${productId}`, {
+          method: 'DELETE'
+        });
+
+        if (res.ok) {
+          btnElement.closest('.product-item').remove();
+        } else {
+          throw new Error();
+        }
+      } catch(err) {
+        alert('Не удалось удалить товар. Попробуйте еще раз.');
+        btnElement.innerText = originalText;
+        btnElement.disabled = false;
+      }
+    }
+
+    fetchAdminProducts();
   </script>
 </body>
 </html>
