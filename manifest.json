@@ -1,0 +1,17 @@
+{
+  "nav_type": "none",
+  "name": "GÖZ Store Premium",
+  "short_name": "GÖZ Store",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0c",
+  "theme_color": "#121214",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/isometric/512/glasses.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
