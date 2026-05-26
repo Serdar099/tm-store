@@ -3,44 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM-STORE | Интернет-магазин</title>
+    <title>TM-STORE | Каталог</title>
     <style>
         :root {
-            --primary-color: #10b981;
-            --background-color: #f3f4f6;
-            --card-background: #ffffff;
-            --text-color: #1f2937;
-            --text-muted: #6b7280;
+            --primary: #10b981;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
-        body { background-color: var(--background-color); color: var(--text-color); padding-bottom: 60px; }
-        header { background: var(--card-background); padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
+        header { background: var(--card); padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; border-bottom: 1px solid #e5e7eb; }
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-
-        .status-layer { text-align: center; padding: 40px 20px; background: var(--card-background); border-radius: 12px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        .status-box { text-align: center; padding: 30px; background: var(--card); border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .hidden { display: none !important; }
-        .spinner { border: 3px solid #f3f4f6; border-top: 3px solid var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
+        
         .catalog { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .product-card { background: var(--card-background); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .product-img { width: 100%; height: 140px; object-fit: cover; background: #e5e7eb; }
-        .product-info { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .product-price { color: var(--primary-color); font-weight: bold; font-size: 1rem; margin-top: auto; }
+        .card { background: var(--card); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .card-img { width: 100%; height: 130px; object-fit: cover; background: #e5e7eb; }
+        .card-info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+        .card-price { color: var(--primary); font-weight: bold; }
 
-        .admin-trigger { position: fixed; bottom: 15px; right: 15px; background: #374151; color: white; padding: 10px 15px; border-radius: 20px; font-size: 0.8rem; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; }
-        .admin-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 15px; }
+        .admin-btn { position: fixed; bottom: 15px; right: 15px; background: #374151; color: white; padding: 10px 15px; border-radius: 20px; font-size: 0.8rem; text-decoration: none; z-index: 99; }
+        .admin-panel { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 15px; }
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-muted); }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; }
-        .btn { background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
-        
-        .preview-box { width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin-top: 5px; overflow: hidden; }
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .critical-error-box { background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: left; font-size: 0.9rem; word-break: break-all; }
+        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; color: #6b7280; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -48,197 +39,115 @@
     <header>TM-STORE</header>
 
     <div class="container">
-        <div id="criticalErrorDisplay" class="critical-error-box hidden"></div>
-
-        <div id="statusLayer" class="status-layer">
-            <div id="loaderStatus">
-                <div class="spinner"></div>
-                <p>⏳ Загрузка каталога товаров...</p>
-            </div>
-            <div id="errorStatus" class="hidden">
-                <p style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">⚠️ Ошибка загрузки</p>
-                <p id="errorText" style="font-size: 0.9rem; color: var(--text-muted);">Не удалось связаться с сервером.</p>
-            </div>
-            <div id="emptyStatus" class="hidden">
-                <p>📦 Каталог товаров пока пуст.</p>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Нажмите кнопку «Управление» снизу, чтобы добавить первый товар.</p>
-            </div>
+        <div id="statusBox" class="status-box">
+            <p id="statusText">⏳ Загрузка товаров...</p>
         </div>
 
-        <main id="catalogDisplay" class="catalog hidden"></main>
+        <main id="catalog" class="catalog hidden"></main>
 
-        <a href="#" id="toggleAdminBtn" class="admin-trigger">Управление</a>
+        <a href="#" id="toggleAdmin" class="admin-btn">Управление</a>
 
-        <div id="adminBlock" class="admin-panel hidden">
-            <h3 style="margin-bottom: 15px;">Добавление товара</h3>
-            <form id="addProductForm">
+        <div id="adminPanel" class="admin-panel hidden">
+            <h3 style="margin-bottom: 10px;">Новый товар</h3>
+            <form id="productForm">
                 <div class="form-group">
-                    <label>Название товара</label>
-                    <input type="text" id="pName" required>
+                    <label>Название</label>
+                    <input type="text" id="pTitle" required>
                 </div>
                 <div class="form-group">
                     <label>Цена (TMT)</label>
                     <input type="number" id="pPrice" required>
                 </div>
                 <div class="form-group">
-                    <label>Фотография товара (из галереи)</label>
-                    <input type="file" id="pImgFile" accept="image/*" required style="padding: 5px 0;">
-                    <div class="preview-box" id="previewContainer">
-                        <span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>
-                    </div>
+                    <label>Ссылка на фото (Гугл Диск или интернет)</label>
+                    <input type="url" id="pUrl" placeholder="https://..." required>
                 </div>
-                <button type="submit" id="submitBtn" class="btn">Добавить в каталог</button>
+                <button type="submit" id="submitBtn" class="btn">Добавить товар</button>
             </form>
         </div>
     </div>
 
     <script>
-        // ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ОШИБОК ДЛЯ ЛЮБЫХ УСТРОЙСТВ
-        window.onerror = function(message, source, lineno, colno, error) {
-            var errBox = document.getElementById('criticalErrorDisplay');
-            if (errBox) {
-                errBox.innerText = "🚨 Сбой инициализации скрипта:\n" + message + "\nВ файле: " + source + "\nСтрока: " + lineno;
-                errBox.classList.remove('hidden');
-            }
-            var loader = document.getElementById('statusLayer');
-            if (loader) loader.classList.add('hidden');
-            return false;
-        };
-
-        var base64ImageString = ""; 
-
-        function serverRequest(options) {
-            if (!options) options = {};
-            var url = '/api/products';
-            var headers = { "Content-Type": "application/json" };
-            
-            return fetch(url, {
-                method: options.method || 'GET',
-                headers: headers,
-                body: options.body || null
-            }).then(function(response) {
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
+        // Функция автоматического исправления ссылок Google Drive
+        function cleanImageUrl(url) {
+            if (url.includes('drive.google.com')) {
+                var matches = url.match(/\/file\/d\/([^\/]+)/);
+                if (matches && matches[1]) {
+                    return 'https://drive.google.com/uc?export=view&id=' + matches[1];
                 }
-                return response.json();
-            });
+            }
+            return url;
         }
 
-        document.getElementById('pImgFile').addEventListener('change', function(e) {
-            var file = e.target.files[0];
-            if (!file) return;
-
-            var reader = new FileReader();
-            reader.onload = function(event) {
-                var img = new Image();
-                img.onload = function() {
-                    var canvas = document.createElement('canvas');
-                    var MAX_WIDTH = 300; 
-                    var width = img.width;
-                    var height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    var ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    base64ImageString = canvas.toDataURL('image/jpeg', 0.6);
-                    
-                    var previewContainer = document.getElementById('previewContainer');
-                    previewContainer.innerHTML = '<img src="' + base64ImageString + '" alt="Превью">';
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
         function loadProducts() {
-            var loaderStatus = document.getElementById('loaderStatus');
-            var errorStatus = document.getElementById('errorStatus');
-            var emptyStatus = document.getElementById('emptyStatus');
-            var statusLayer = document.getElementById('statusLayer');
-            var catalogDisplay = document.getElementById('catalogDisplay');
-
-            serverRequest({ method: 'GET' })
-                .then(function(products) {
-                    loaderStatus.classList.add('hidden');
+            fetch('/api/products')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var catalog = document.getElementById('catalog');
+                    var statusBox = document.getElementById('statusBox');
                     
-                    if (!products || products.length === 0) {
-                        emptyStatus.classList.remove('hidden');
-                        statusLayer.classList.remove('hidden');
-                        catalogDisplay.classList.add('hidden');
+                    if (!data || data.length === 0) {
+                        document.getElementById('statusText').innerText = "📦 Каталог пуст. Откройте «Управление» и добавьте товар.";
+                        statusBox.classList.remove('hidden');
+                        catalog.classList.add('hidden');
                         return;
                     }
 
-                    statusLayer.classList.add('hidden');
-                    catalogDisplay.classList.remove('hidden');
-                    catalogDisplay.innerHTML = '';
+                    statusBox.classList.add('hidden');
+                    catalog.classList.remove('hidden');
+                    catalog.innerHTML = '';
 
-                    products.forEach(function(product) {
-                        var card = document.createElement('div');
-                        card.className = 'product-card';
-                        card.innerHTML = '<img class="product-img" src="' + (product.image || '') + '" alt="' + product.title + '">' +
-                            '<div class="product-info">' +
-                                '<div class="product-title">' + product.title + '</div>' +
-                                '<div class="product-price">' + product.price + ' TMT</div>' +
+                    data.forEach(function(item) {
+                        var div = document.createElement('div');
+                        div.className = 'card';
+                        div.innerHTML = '<img class="card-img" src="' + cleanImageUrl(item.image) + '">' +
+                            '<div class="card-info">' +
+                                '<div class="card-title">' + item.title + '</div>' +
+                                '<div class="card-price">' + item.price + ' TMT</div>' +
                             '</div>';
-                        catalogDisplay.appendChild(card);
+                        catalog.appendChild(div);
                     });
                 })
-                .catch(function(error) {
-                    console.error(error);
-                    loaderStatus.classList.add('hidden');
-                    document.getElementById('errorText').innerText = error.message;
-                    errorStatus.classList.remove('hidden');
+                .catch(function(err) {
+                    document.getElementById('statusText').innerText = "❌ Ошибка загрузки каталога.";
                 });
         }
 
-        document.getElementById('toggleAdminBtn').addEventListener('click', function(e) {
+        document.getElementById('toggleAdmin').addEventListener('click', function(e) {
             e.preventDefault();
-            document.getElementById('adminBlock').classList.toggle('hidden');
+            document.getElementById('adminPanel').classList.toggle('hidden');
         });
 
-        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+        document.getElementById('productForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var btn = document.getElementById('submitBtn');
-            var title = document.getElementById('pName').value;
-            var price = parseFloat(document.getElementById('pPrice').value);
-            var errBox = document.getElementById('criticalErrorDisplay');
-
-            if (!base64ImageString) {
-                alert('Пожалуйста, выберите фото!');
-                return;
-            }
-
             btn.disabled = true;
-            btn.innerText = '⏳ Отправка...';
-            errBox.classList.add('hidden');
+            btn.innerText = 'Отправка...';
 
-            serverRequest({
+            var payload = {
+                title: document.getElementById('pTitle').value,
+                price: parseFloat(document.getElementById('pPrice').value),
+                image: document.getElementById('pUrl').value
+            };
+
+            fetch('/api/products', {
                 method: 'POST',
-                body: JSON.stringify({ title: title, price: price, image: base64ImageString })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             })
-            .then(function() {
-                alert('✅ Товар успешно добавлен!');
-                document.getElementById('addProductForm').reset();
-                document.getElementById('previewContainer').innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Фото не выбрано</span>';
-                base64ImageString = ""; 
-                document.getElementById('adminBlock').classList.add('hidden');
+            .then(function(res) {
+                if(!res.ok) throw new Error();
+                alert('✅ Товар добавлен успешно!');
+                document.getElementById('productForm').reset();
+                document.getElementById('adminPanel').classList.add('hidden');
                 loadProducts();
             })
-            .catch(function(error) {
-                errBox.innerText = "🚨 ОШИБКА ПРИ ДОБАВЛЕНИИ:\n" + error.message;
-                errBox.classList.remove('hidden');
-                document.getElementById('statusLayer').classList.add('hidden');
+            .catch(function() {
+                alert('❌ Сбой при добавлении в базу данных.');
             })
             .then(function() {
                 btn.disabled = false;
-                btn.innerText = 'Добавить в каталог';
+                btn.innerText = 'Добавить товар';
             });
         });
 
