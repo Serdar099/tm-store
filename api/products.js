@@ -1,35 +1,40 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export default async function handler(req, res) {
-  // Настройка заголовков, чтобы избежать проблем со старым кэшем в браузерах
+  // Защита от кэширования
   res.setHeader('Cache-Control', 'no-shadow, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
-  // Получение списка товаров (GET-запрос)
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+  // Ссылка для прямых запросов к таблице products
+  const targetUrl = `${supabaseUrl}/rest/v1/products`;
+
+  // 1. Получение товаров (GET)
   if (req.method === 'GET') {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('id', { ascending: false });
+      const response = await fetch(`${targetUrl}?order=id.desc`, {
+        method: 'GET',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if (error) {
-        return res.status(400).json([]);
+      if (!response.ok) {
+        const errText = await response.text();
+        return res.status(response.status).send(`Ошибка Supabase: ${errText}`);
       }
-      
-      // Если данных нет, принудительно возвращаем пустой массив [], чтобы код на сайте не ломался
+
+      const data = await response.json();
       return res.status(200).json(data || []);
     } catch (err) {
-      return res.status(500).json([]);
+      return res.status(500).send(`Ошибка сервера: ${err.message}`);
     }
   }
 
-  // Добавление нового товара (POST-запрос)
+  // 2. Добавление товара (POST)
   if (req.method === 'POST') {
     try {
       const { title, price, image } = req.body;
@@ -38,19 +43,27 @@ export default async function handler(req, res) {
         return res.status(400).send('Название и цена обязательны');
       }
 
-      const { data, error } = await supabase
-        .from('products')
-        .insert([{ title, price, image }]);
+      const response = await fetch(targetUrl, {
+        method: 'POST',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation' // Просим Supabase вернуть добавленный объект
+        },
+        body: JSON.stringify({ title, price, image })
+      });
 
-      if (error) {
-        return res.status(400).send(error.message);
+      if (!response.ok) {
+        const errText = await response.text();
+        return res.status(response.status).send(`Ошибка Supabase при записи: ${errText}`);
       }
 
       return res.status(200).send('Успешно добавлено');
     } catch (err) {
-      return res.status(500).send('Внутренняя ошибка сервера');
+      return res.status(500).send(`Ошибка сервера при записи: ${err.message}`);
     }
   }
 
-  return res.status(405).send('Метод не поддерживается');
+  return res.status(405).send('Метод запрещен');
 }
