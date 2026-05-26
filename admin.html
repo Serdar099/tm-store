@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GÖZ Store | Панель Управления</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+    body { background: #0b0b0c; color: #f5f5f7; padding: 20px 10px; -webkit-font-smoothing: antialiased; }
+    
+    .admin-box { max-width: 500px; margin: 0 auto; background: #121214; border-radius: 24px; padding: 24px; border: 1px solid rgba(223, 186, 107, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    h1 { color: #dfba6b; font-size: 22px; font-weight: 900; text-align: center; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; }
+    
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: #86868b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select, textarea { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px; border-radius: 12px; color: #fff; font-size: 15px; transition: all 0.3s; }
+    input:focus, select:focus, textarea:focus { border-color: #dfba6b; outline: none; background: rgba(255, 255, 255, 0.07); }
+    
+    .submit-btn { background: linear-gradient(135deg, #dfba6b 0%, #b89344 100%); color: #0b0b0c; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(223, 186, 107, 0.2); letter-spacing: 0.5px; margin-top: 10px; }
+    .submit-btn:active { transform: scale(0.98); }
+    
+    .back-btn { display: block; text-align: center; margin-top: 20px; color: #a1a1a6; font-size: 14px; text-decoration: none; font-weight: 600; }
+    .back-btn:hover { color: #dfba6b; }
+    
+    #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; display: none; }
+    .success { color: #00b67a; }
+    .error { color: #ff453a; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-box">
+    <h1>Добавить товар в GÖZ</h1>
+    
+    <form id="productForm" onsubmit="saveProduct(event)">
+      <div class="form-group">
+        <label>Название товара</label>
+        <input type="text" id="title" placeholder="Например: Очки Авиаторы Gold" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Категория</label>
+        <select id="category" required>
+          <option value="Очки">Очки</option>
+          <option value="Очки для зрения">Очки для зрения</option>
+          <option value="Женская одежда">Женская одежда</option>
+          <option value="Туфли">Туфли</option>
+          <option value="Сумочки">Сумочки</option>
+          <option value="Ремонт очков">Ремонт очков</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Цена (в TMT)</label>
+        <input type="number" id="price" placeholder="Цена без букв, например: 250" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Ссылка на фото (Google Диск)</label>
+        <input type="url" id="image" placeholder="Вставь ссылку на картинку товара" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Описание товара</label>
+        <textarea id="description" rows="3" placeholder="Укажи материал, размер или особенности товара..."></textarea>
+      </div>
+      
+      <button type="submit" class="submit-btn">Опубликовать на витрину</button>
+      <div id="status"></div>
+    </form>
+    
+    <a href="/" class="back-btn">← Вернуться в магазин</a>
+  </div>
+
+  <script>
+    async function saveProduct(event) {
+      event.preventDefault();
+      const statusDiv = document.getElementById('status');
+      statusDiv.style.display = 'block';
+      statusDiv.className = '';
+      statusDiv.innerText = '⏳ Сохранение на сервере...';
+
+      const payload = {
+        title: document.getElementById('title').value,
+        category: document.getElementById('category').value,
+        price: document.getElementById('price').value,
+        image: document.getElementById('image').value,
+        description: document.getElementById('description').value
+      };
+
+      try {
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          statusDiv.className = 'success';
+          statusDiv.innerText = '✅ Товар успешно добавлен на витрину!';
+          document.getElementById('productForm').reset();
+        } else {
+          throw new Error('Ошибка при сохранении');
+        }
+      } catch (err) {
+        statusDiv.className = 'error';
+        statusDiv.innerText = '❌ Не удалось добавить товар. Проверь базу данных.';
+      }
+    }
+  </script>
+</body>
+</html>
