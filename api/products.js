@@ -47,7 +47,7 @@ export default async function handler(req, res) {
           image, 
           category: category || 'Очки',
           description: description || '' 
-        } || []);
+        })
       });
       if (!response.ok) return res.status(response.status).send(await response.text());
       return res.status(200).send('Успешно добавлено');
