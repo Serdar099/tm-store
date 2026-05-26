@@ -56,12 +56,14 @@ export default async function handler(req, res) {
     }
   }
 
-  // 3. УДАЛЕНИЕ ТОВАРА (DELETE)
+  // 3. УДАЛЕНИЕ ТОВАРА (DELETE) — ИСПРАВЛЕННЫЙ ВАРИАНТ
   if (req.method === 'DELETE') {
     try {
-      const { id } = req.query;
+      // Берем ID либо из параметров строки (?id=...), либо из тела запроса
+      const id = req.query.id || req.body.id;
       if (!id) return res.status(400).send('Не указан ID товара');
 
+      // Отправляем точечный запрос на удаление в Supabase
       const response = await fetch(`${targetUrl}?id=eq.${id}`, {
         method: 'DELETE',
         headers: {
@@ -70,7 +72,11 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         }
       });
-      if (!response.ok) return res.status(response.status).send(await response.text());
+
+      if (!response.ok) {
+        return res.status(response.status).send(await response.text());
+      }
+
       return res.status(200).send('Успешно удалено');
     } catch (err) {
       return res.status(500).send(err.message);
