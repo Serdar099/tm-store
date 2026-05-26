@@ -3,13 +3,12 @@ export default async function handler(req, res) {
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
-  // ТВОИ АБСОЛЮТНО ПРАВИЛЬНЫЕ ДАННЫЕ SUPABASE
   const supabaseUrl = 'https://tewshpcmudtkbosuqxry.supabase.co'; 
   const supabaseKey = 'sb_publishable_gGTgFBsHSMpPkTqGlBXk8w_bjokjvqq'; 
 
   const targetUrl = `${supabaseUrl}/rest/v1/products`;
 
-  // 1. Получение товаров (GET)
+  // 1. ПОЛУЧЕНИЕ ТОВАРОВ (GET)
   if (req.method === 'GET') {
     try {
       const response = await fetch(`${targetUrl}?order=id.desc`, {
@@ -20,27 +19,19 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         }
       });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        return res.status(response.status).send(`Ошибка Supabase: ${errText}`);
-      }
-
+      if (!response.ok) return res.status(response.status).send(await response.text());
       const data = await response.json();
       return res.status(200).json(data || []);
     } catch (err) {
-      return res.status(500).send(`Ошибка сервера: ${err.message}`);
+      return res.status(500).send(err.message);
     }
   }
 
-  // 2. Добавление товара (POST)
+  // 2. ДОБАВЛЕНИЕ ТОВАРА (POST)
   if (req.method === 'POST') {
     try {
-      const { title, price, image } = req.body;
-
-      if (!title || !price) {
-        return res.status(400).send('Название и цена обязательны');
-      }
+      const { title, price, image, category, description } = req.body;
+      if (!title || !price) return res.status(400).send('Название и цена обязательны');
 
       const response = await fetch(targetUrl, {
         method: 'POST',
@@ -50,17 +41,39 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
           'Prefer': 'return=representation'
         },
-        body: JSON.stringify({ title, price, image })
+        body: JSON.stringify({ 
+          title, 
+          price, 
+          image, 
+          category: category || 'Очки',
+          description: description || '' 
+        } || []);
       });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        return res.status(response.status).send(`Ошибка Supabase при записи: ${errText}`);
-      }
-
+      if (!response.ok) return res.status(response.status).send(await response.text());
       return res.status(200).send('Успешно добавлено');
     } catch (err) {
-      return res.status(500).send(`Ошибка сервера при записи: ${err.message}`);
+      return res.status(500).send(err.message);
+    }
+  }
+
+  // 3. УДАЛЕНИЕ ТОВАРА (DELETE)
+  if (req.method === 'DELETE') {
+    try {
+      const { id } = req.query;
+      if (!id) return res.status(400).send('Не указан ID товара');
+
+      const response = await fetch(`${targetUrl}?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) return res.status(response.status).send(await response.text());
+      return res.status(200).send('Успешно удалено');
+    } catch (err) {
+      return res.status(500).send(err.message);
     }
   }
 
