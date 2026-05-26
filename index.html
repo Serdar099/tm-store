@@ -186,11 +186,13 @@
 
     const myGoogleFormUrl = 'https://forms.gle/xaLqWQnfCJRj2PH98';
 
+    // Встроенный умный конвертер ссылок Google Drive
     function cleanGoogleDriveLink(url) {
       if (!url) return '';
       if (url.includes('drive.google.com')) {
         let id = '';
-        if (url.includes('/d/')) { id = url.split('/d/')[1].split('/')[0]; }
+        if (url.includes('/file/d/')) { id = url.split('/file/d/')[1].split('/')[0]; }
+        else if (url.includes('/d/')) { id = url.split('/d/')[1].split('/')[0]; }
         else if (url.includes('id=')) { id = url.split('id=')[1].split('&')[0]; }
         if (id) return `https://docs.google.com/uc?export=view&id=${id}`;
       }
