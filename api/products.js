@@ -1,13 +1,12 @@
 export default async function handler(req, res) {
-  // Защита от кэширования
   res.setHeader('Cache-Control', 'no-shadow, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_ANON_KEY;
+  // ВСЕ ТВОИ КЛЮЧИ И ССЫЛКИ УЖЕ ТУТ:
+  const supabaseUrl = 'https://tewshpcmudtkbosuqxry.supabase.co'; 
+  const supabaseKey = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRld3NocGNtdWR0a2Jvc3VxeHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDQ1NzQsImV4cCI6MjA5NTIyMDU3NH0.kkRjbr-10ChYi6dcGnsjIN4iArkX2Z60XAPG6MxKY6c'; 
 
-  // Ссылка для прямых запросов к таблице products
   const targetUrl = `${supabaseUrl}/rest/v1/products`;
 
   // 1. Получение товаров (GET)
@@ -49,7 +48,7 @@ export default async function handler(req, res) {
           'apikey': supabaseKey,
           'Authorization': `Bearer ${supabaseKey}`,
           'Content-Type': 'application/json',
-          'Prefer': 'return=representation' // Просим Supabase вернуть добавленный объект
+          'Prefer': 'return=representation'
         },
         body: JSON.stringify({ title, price, image })
       });
