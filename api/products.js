@@ -3,9 +3,9 @@ export default async function handler(req, res) {
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
-  // ВСЕ ТВОИ КЛЮЧИ И ССЫЛКИ УЖЕ ТУТ:
+  // ТВОИ АБСОЛЮТНО ПРАВИЛЬНЫЕ ДАННЫЕ SUPABASE
   const supabaseUrl = 'https://tewshpcmudtkbosuqxry.supabase.co'; 
-  const supabaseKey = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRld3NocGNtdWR0a2Jvc3VxeHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDQ1NzQsImV4cCI6MjA5NTIyMDU3NH0.kkRjbr-10ChYi6dcGnsjIN4iArkX2Z60XAPG6MxKY6c'; 
+  const supabaseKey = 'sb_publishable_gGTgFBsHSMpPkTqGlBXk8w_bjokjvqq'; 
 
   const targetUrl = `${supabaseUrl}/rest/v1/products`;
 
