@@ -107,7 +107,7 @@
       width: 100%; 
       max-width: 550px; 
       padding: 30px 24px 24px 24px; 
-      max-height: 85vh; 
+      max-height: 90vh; 
       overflow-y: auto; 
       position: relative; 
       animation: slideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1); 
@@ -118,18 +118,23 @@
     .modal-line { width: 50px; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; margin: -15px auto 20px auto; }
     .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; color: #a1a1a6; cursor: pointer; border: none; background: rgba(255, 255, 255, 0.05); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     
-    .modal-img-wrap { width: 100%; max-height: 280px; overflow: hidden; border-radius: 20px; background: #1c1c1e; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .modal-img-wrap { width: 100%; max-height: 240px; overflow: hidden; border-radius: 20px; background: #1c1c1e; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255, 255, 255, 0.05); }
     .modal-img { max-width: 100%; max-height: 100%; object-fit: contain; }
     
     .modal-title { font-size: 22px; font-weight: 700; color: #ffffff; margin: 20px 0 8px 0; line-height: 1.3; }
-    .modal-price { font-size: 26px; color: #dfba6b; font-weight: 800; margin-bottom: 20px; letter-spacing: 0.5px; }
+    .modal-price { font-size: 26px; color: #dfba6b; font-weight: 800; margin-bottom: 15px; letter-spacing: 0.5px; }
     
-    .modal-desc-title { font-size: 12px; color: #86868b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .modal-desc { font-size: 15px; color: #e1e1e6; line-height: 1.6; margin-bottom: 25px; padding: 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.02); }
+    .modal-desc-title { font-size: 11px; color: #86868b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .modal-desc { font-size: 14px; color: #e1e1e6; line-height: 1.5; margin-bottom: 20px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.02); }
     
-    .modal-box .order-btn { 
+    .order-checkout-fields { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .input-field { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px; border-radius: 12px; color: #fff; font-size: 15px; margin-bottom: 12px; transition: all 0.3s; }
+    .input-field:focus { border-color: #dfba6b; outline: none; background: rgba(255, 255, 255, 0.07); }
+    
+    .modal-box .send-btn { 
       background: linear-gradient(135deg, #dfba6b 0%, #b89344 100%); 
       color: #0b0b0c; 
+      width: 100%;
       padding: 16px; 
       font-size: 16px; 
       font-weight: 700; 
@@ -137,7 +142,9 @@
       border-radius: 14px; 
       box-shadow: 0 6px 25px rgba(223, 186, 107, 0.3); 
       letter-spacing: 0.5px;
+      cursor: pointer;
     }
+    .send-btn:disabled { background: #444; color: #888; box-shadow: none; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -175,7 +182,12 @@
       <div class="modal-desc-title">Эксклюзивные детали</div>
       <div id="modalDesc" class="modal-desc"></div>
       
-      <button class="order-btn" onclick="redirectToOrderForm()">Оформить премиум-заказ</button>
+      <div class="order-checkout-fields">
+        <div class="modal-desc-title">Контактные данные</div>
+        <input type="text" id="clientName" class="input-field" placeholder="Ваше имя" required>
+        <input type="tel" id="clientPhone" class="input-field" placeholder="Номер телефона (+993...)" required>
+        <button id="sendOrderBtn" class="send-btn" onclick="submitOrderDirectly()">Оформить премиум-заказ</button>
+      </div>
     </div>
   </div>
 
@@ -184,9 +196,17 @@
     let currentCategory = 'Все';
     let selectedItem = null;
 
-    const myGoogleFormUrl = 'https://forms.gle/xaLqWQnfCJRj2PH98';
+    // Вшитая личная ссылка на твою форму Google
+    const googleFormSubmitUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSeiIVydTlmSuEoxSN-9fvVYZy0hwZUnEWq_8O5q3v3XtBhl0w/formResponse';
 
-    // Встроенный умный конвертер ссылок Google Drive
+    // Вшитые реальные ID твоих полей из формы
+    const formFieldsIds = {
+      productTitle: 'entry.410943806',  
+      category: 'entry.1745484898',      
+      name: 'entry.1011850125',           
+      phone: 'entry.556272304'         
+    };
+
     function cleanGoogleDriveLink(url) {
       if (!url) return '';
       if (url.includes('drive.google.com')) {
@@ -202,7 +222,7 @@
     async function loadProducts() {
       try {
         const res = await fetch('/api/products');
-        if (!res.ok) throw new Error('Ошибка сети');
+        if (!res.ok) throw new Error();
         allProducts = await res.json();
         renderCatalog();
       } catch (err) {
@@ -225,6 +245,13 @@
       document.getElementById('modalTitle').innerText = item.title;
       document.getElementById('modalPrice').innerText = `${item.price} TMT`;
       document.getElementById('modalDesc').innerText = item.description || 'Описание премиального качества.';
+      
+      document.getElementById('clientName').value = '';
+      document.getElementById('clientPhone').value = '';
+      const btn = document.getElementById('sendOrderBtn');
+      btn.innerText = 'Оформить премиум-заказ';
+      btn.disabled = false;
+      
       document.getElementById('productModal').style.display = 'flex';
     }
 
@@ -234,9 +261,45 @@
       }
     }
 
-    function redirectToOrderForm() {
-      if (selectedItem) {
-        window.open(myGoogleFormUrl, '_blank');
+    async function submitOrderDirectly() {
+      const name = document.getElementById('clientName').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+      const btn = document.getElementById('sendOrderBtn');
+
+      if (!name || !phone) {
+        alert('Пожалуйста, введите имя и номер телефона для связи.');
+        return;
+      }
+
+      btn.innerText = '⏳ Оформление заказа...';
+      btn.disabled = true;
+
+      const formData = new URLSearchParams();
+      formData.append(formFieldsIds.productTitle, selectedItem.title);
+      formData.append(formFieldsIds.category, selectedItem.category);
+      formData.append(formFieldsIds.name, name);
+      formData.append(formFieldsIds.phone, phone);
+
+      try {
+        await fetch(googleFormSubmitUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formData.toString()
+        });
+
+        btn.style.background = '#00b67a';
+        btn.innerText = '✅ Успешно заказано!';
+        setTimeout(() => {
+          document.getElementById('productModal').style.display = 'none';
+        }, 1500);
+
+      } catch (error) {
+        alert('Произошла ошибка при отправке. Попробуйте еще раз.');
+        btn.innerText = 'Оформить премиум-заказ';
+        btn.disabled = false;
       }
     }
 
