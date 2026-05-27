@@ -125,26 +125,55 @@
     .modal-price { font-size: 26px; color: #dfba6b; font-weight: 800; margin-bottom: 15px; letter-spacing: 0.5px; }
     
     .modal-desc-title { font-size: 11px; color: #86868b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .modal-desc { font-size: 14px; color: #e1e1e6; line-height: 1.5; margin-bottom: 20px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.02); }
+    .modal-desc { font-size: 14px; color: #e1e1e6; line-height: 1.5; margin-bottom: 20px; padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); }
     
-    .order-checkout-fields { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
-    .input-field { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px; border-radius: 12px; color: #fff; font-size: 15px; margin-bottom: 12px; transition: all 0.3s; }
-    .input-field:focus { border-color: #dfba6b; outline: none; background: rgba(255, 255, 255, 0.07); }
+    .order-checkout-fields { 
+      display: none; 
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+      margin-top: 15px; 
+    }
+    .order-checkout-fields.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
     
-    .modal-box .send-btn { 
+    .input-field { 
+      width: 100%; 
+      background: rgba(255, 255, 255, 0.03); 
+      border: 1px solid rgba(255, 255, 255, 0.07); 
+      padding: 16px; 
+      border-radius: 14px; 
+      color: #fff; 
+      font-size: 16px; 
+      margin-bottom: 14px; 
+      transition: all 0.3s; 
+    }
+    .input-field:focus { 
+      border-color: #dfba6b; 
+      outline: none; 
+      background: rgba(255, 255, 255, 0.06); 
+      box-shadow: 0 0 15px rgba(223, 186, 107, 0.1);
+    }
+    
+    .modal-box .action-btn { 
       background: linear-gradient(135deg, #dfba6b 0%, #b89344 100%); 
       color: #0b0b0c; 
       width: 100%;
-      padding: 16px; 
+      padding: 18px; 
       font-size: 16px; 
       font-weight: 700; 
       border: none; 
-      border-radius: 14px; 
-      box-shadow: 0 6px 25px rgba(223, 186, 107, 0.3); 
+      border-radius: 16px; 
+      box-shadow: 0 6px 25px rgba(223, 186, 107, 0.25); 
       letter-spacing: 0.5px;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
-    .send-btn:disabled { background: #444; color: #888; box-shadow: none; cursor: not-allowed; }
+    .action-btn:active { transform: scale(0.98); }
+    .action-btn:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -179,15 +208,18 @@
       <div id="modalTitle" class="modal-title"></div>
       <div id="modalPrice" class="modal-price"></div>
       
-      <div class="modal-desc-title">Эксклюзивные детали</div>
-      <div id="modalDesc" class="modal-desc"></div>
+      <div id="detailsBlock">
+        <div class="modal-desc-title">Эксклюзивные детали</div>
+        <div id="modalDesc" class="modal-desc"></div>
+      </div>
       
-      <div class="order-checkout-fields">
-        <div class="modal-desc-title">Контактные данные</div>
+      <div id="checkoutFields" class="order-checkout-fields">
+        <div class="modal-desc-title">Контактные данные для заказа</div>
         <input type="text" id="clientName" class="input-field" placeholder="Ваше имя" required>
         <input type="tel" id="clientPhone" class="input-field" placeholder="Номер телефона (+993...)" required>
-        <button id="sendOrderBtn" class="send-btn" onclick="submitOrderDirectly()">Оформить премиум-заказ</button>
       </div>
+
+      <button id="mainActionBtn" class="action-btn" onclick="handleMainButtonClick()">Быстрый заказ в 1 клик</button>
     </div>
   </div>
 
@@ -195,11 +227,10 @@
     let allProducts = [];
     let currentCategory = 'Все';
     let selectedItem = null;
+    let isCheckoutStage = false;
 
-    // Вшитая личная ссылка на твою форму Google
     const googleFormSubmitUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSeiIVydTlmSuEoxSN-9fvVYZy0hwZUnEWq_8O5q3v3XtBhl0w/formResponse';
 
-    // Вшитые реальные ID твоих полей из формы
     const formFieldsIds = {
       productTitle: 'entry.410943806',  
       category: 'entry.1745484898',      
@@ -241,15 +272,19 @@
 
     function openProductModal(item) {
       selectedItem = item;
+      isCheckoutStage = false;
+
       document.getElementById('modalImg').src = cleanGoogleDriveLink(item.image);
       document.getElementById('modalTitle').innerText = item.title;
       document.getElementById('modalPrice').innerText = `${item.price} TMT`;
       document.getElementById('modalDesc').innerText = item.description || 'Описание премиального качества.';
       
-      document.getElementById('clientName').value = '';
-      document.getElementById('clientPhone').value = '';
-      const btn = document.getElementById('sendOrderBtn');
-      btn.innerText = 'Оформить премиум-заказ';
+      document.getElementById('detailsBlock').style.display = 'block';
+      document.getElementById('checkoutFields').classList.remove('show');
+      
+      const btn = document.getElementById('mainActionBtn');
+      btn.style.background = 'linear-gradient(135deg, #dfba6b 0%, #b89344 100%)';
+      btn.innerText = 'Быстрый заказ в 1 клик';
       btn.disabled = false;
       
       document.getElementById('productModal').style.display = 'flex';
@@ -261,13 +296,153 @@
       }
     }
 
+    function handleMainButtonClick() {
+      if (!isCheckoutStage) {
+        document.getElementById('detailsBlock').style.display = 'none';
+        document.getElementById('checkoutFields').classList.add('show');
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientPhone').value = '';
+        document.getElementById('mainActionBtn').innerText = 'Подтвердить заказ';
+        isCheckoutStage = true;
+      } else {
+        submitOrderDirectly();
+      }
+    }
+
+    // ✨ ФУНКЦИЯ ГЕНЕРАЦИИ И СКАЧИВАНИЯ КАРТОЧКИ-ЧЕКА
+    function generateAndDownloadReceipt(clientName) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Задаем премиальный размер инвойс-карточки
+      canvas.width = 600;
+      canvas.height = 850;
+
+      // 1. Фон (Темный люкс)
+      ctx.fillStyle = '#0b0b0c';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Рамка цвета бледного золота
+      ctx.strokeStyle = 'rgba(223, 186, 107, 0.2)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+      // 2. Шапка брендового чека
+      ctx.fillStyle = '#dfba6b';
+      ctx.font = 'bold 32px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('GÖZ STORE', canvas.width / 2, 80);
+
+      ctx.fillStyle = '#86868b';
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.fillText('PREMIUM BOUTIQUE RECEIPT', canvas.width / 2, 110);
+
+      // Декоративная золотая разделительная линия
+      ctx.fillStyle = 'rgba(223, 186, 107, 0.3)';
+      ctx.fillRect(50, 130, canvas.width - 100, 2);
+
+      // 3. Вывод картинки товара по центру чека
+      const originalImg = document.getElementById('modalImg');
+      const productImg = new Image();
+      productImg.crossOrigin = 'anonymous'; 
+      productImg.src = originalImg.src;
+
+      productImg.onload = function() {
+        // Отрисовка фото товара в рамке
+        const imgSize = 300;
+        const imgX = (canvas.width - imgSize) / 2;
+        const imgY = 160;
+        
+        ctx.fillStyle = '#121214';
+        ctx.fillRect(imgX, imgY, imgSize, imgSize);
+        ctx.drawImage(productImg, imgX, imgY, imgSize, imgSize);
+        
+        // Рисуем рамку вокруг картинки
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(imgX, imgY, imgSize, imgSize);
+
+        drawTextData();
+      };
+
+      productImg.onerror = function() {
+        // Если картинка из внешнего облака заблокирована по CORS, рисуем стильную заглушку вместо нее
+        const imgSize = 300;
+        const imgX = (canvas.width - imgSize) / 2;
+        const imgY = 160;
+        ctx.fillStyle = '#121214';
+        ctx.fillRect(imgX, imgY, imgSize, imgSize);
+        ctx.fillStyle = 'rgba(223, 186, 107, 0.1)';
+        ctx.font = 'italic 20px -apple-system, sans-serif';
+        ctx.fillText('Exclusive Premium Item', canvas.width / 2, imgY + (imgSize / 2));
+        
+        drawTextData();
+      };
+
+      function drawTextData() {
+        // 4. Информация о товаре
+        ctx.textAlign = 'left';
+        
+        // Название товара
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px -apple-system, sans-serif';
+        const titleText = selectedItem.title.length > 35 ? selectedItem.title.substring(0, 35) + '...' : selectedItem.title;
+        ctx.fillText(titleText, 50, 520);
+
+        // Цена товара
+        ctx.fillStyle = '#dfba6b';
+        ctx.font = 'bold 28px -apple-system, sans-serif';
+        ctx.fillText(`${selectedItem.price} TMT`, 50, 565);
+
+        // Разделительная линия
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.fillRect(50, 595, canvas.width - 100, 1);
+
+        // Детали покупателя
+        ctx.fillStyle = '#86868b';
+        ctx.font = '16px -apple-system, sans-serif';
+        ctx.fillText('Покупатель:', 50, 630);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.fillText(clientName, 170, 630);
+
+        // Дата и время заказа
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ru-RU');
+        const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+        ctx.fillStyle = '#86868b';
+        ctx.font = '16px -apple-system, sans-serif';
+        ctx.fillText('Время заказа:', 50, 670);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '18px -apple-system, sans-serif';
+        ctx.fillText(`${dateStr} в ${timeStr}`, 170, 670);
+
+        // Разделительная линия
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.fillRect(50, 710, canvas.width - 100, 1);
+
+        // 5. Слова благодарности
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#dfba6b';
+        ctx.font = 'italic 18px -apple-system, sans-serif';
+        ctx.fillText('Спасибо вам за покупку! Ждем вас снова.', canvas.width / 2, 760);
+
+        // 6. Инициируем скачивание файла на устройство
+        const link = document.createElement('a');
+        link.download = `GOZ-Order-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    }
+
     async function submitOrderDirectly() {
       const name = document.getElementById('clientName').value.trim();
       const phone = document.getElementById('clientPhone').value.trim();
-      const btn = document.getElementById('sendOrderBtn');
+      const btn = document.getElementById('mainActionBtn');
 
       if (!name || !phone) {
-        alert('Пожалуйста, введите имя и номер телефона для связи.');
+        alert('Пожалуйста, заполните поля «Ваше имя» и «Номер телефона».');
         return;
       }
 
@@ -280,6 +455,13 @@
       formData.append(formFieldsIds.name, name);
       formData.append(formFieldsIds.phone, phone);
 
+      // Запускаем мгновенную генерацию и автоскачивание карточки чека
+      try {
+        generateAndDownloadReceipt(name);
+      } catch (e) {
+        console.log('Ошибка генерации чека, продолжаем отправку формы.');
+      }
+
       try {
         await fetch(googleFormSubmitUrl, {
           method: 'POST',
@@ -291,14 +473,14 @@
         });
 
         btn.style.background = '#00b67a';
-        btn.innerText = '✅ Успешно заказано!';
+        btn.innerText = '✅ Успешно заказано! Чек скачан';
         setTimeout(() => {
           document.getElementById('productModal').style.display = 'none';
         }, 1500);
 
       } catch (error) {
         alert('Произошла ошибка при отправке. Попробуйте еще раз.');
-        btn.innerText = 'Оформить премиум-заказ';
+        btn.innerText = 'Подтвердить заказ';
         btn.disabled = false;
       }
     }
