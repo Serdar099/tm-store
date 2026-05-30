@@ -94,7 +94,7 @@
     .card-price { color: var(--gold); font-weight: 700; font-size: 17px; margin-bottom: 14px; letter-spacing: 0.5px; }
     .order-btn { background: rgba(255, 255, 255, 0.06); color: var(--text-main); border: 1px solid var(--border-color); width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; }
 
-    /* Модалка с горизонтальным Слайдером */
+    /* Модалка со Слайдером */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
     .modal-box { background: var(--bg-card); border-radius: 30px 30px 0 0; width: 100%; max-width: 550px; padding: 30px 24px 24px 24px; max-height: 90vh; overflow-y: auto; position: relative; border-top: 1px solid rgba(223, 186, 107, 0.2); }
     .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; color: var(--text-muted); cursor: pointer; border: none; background: rgba(255, 255, 255, 0.05); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; }
@@ -220,13 +220,15 @@
     let favorites = JSON.parse(localStorage.getItem('goz_favorites')) || [];
     let isFavoritesMode = false;
 
-    // СЮДА ВСТАВЬ СВОИ ДАННЫЕ ИЗ GOOGLE ФОРМЫ
+    // Ссылка на твою рабочую форму
     const googleFormSubmitUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSeiIVydTlmSuEoxSN-9fvVYZy0hwZUnEWq_8O5q3v3XtBhl0w/formResponse';
+    
+    // Твои оригинальные entry ID полей, расставленные по цепочке отправки данных
     const formFieldsIds = {
       productTitle: 'entry.410943806',  
       category: 'entry.1745484898',      
-      name: 'entry.1011850125',           
-      phone: 'entry.556272304'         
+      phone: 'entry.556272304',         
+      name: 'entry.1011850125'           
     };
 
     const translations = {
@@ -394,7 +396,6 @@
     }
 
     function openProductModal(idxInFiltered) {
-      // Ищем товар в общем массиве по сохраненному индексу из отфильтрованного каталога
       const itemElement = document.getElementById(`prod-${idxInFiltered}`);
       if (!itemElement) return;
       
@@ -585,11 +586,12 @@
       btn.innerText = translations[currentLanguage].sending;
       btn.disabled = true;
 
+      // Формируем тело запроса строго в правильной последовательности
       const formData = new URLSearchParams();
       formData.append(formFieldsIds.productTitle, selectedItem.title);
       formData.append(formFieldsIds.category, selectedItem.category);
-      formData.append(formFieldsIds.name, name);
       formData.append(formFieldsIds.phone, phone);
+      formData.append(formFieldsIds.name, name);
 
       try { generateAndDownloadReceipt(name); } catch (e) {}
 
@@ -648,7 +650,6 @@
         const card = document.createElement('div');
         card.className = 'card';
         card.id = `prod-${index}`;
-        // Безопасно сохраняем весь объект товара в HTML-атрибут
         card.setAttribute('data-product', JSON.stringify(item));
         
         card.innerHTML = `
