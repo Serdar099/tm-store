@@ -9,7 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="GÖZ Store">
-  <link rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
+  <link class="apple-touch-icon" rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <style>
     :root {
@@ -220,16 +222,13 @@
     let favorites = JSON.parse(localStorage.getItem('goz_favorites')) || [];
     let isFavoritesMode = false;
 
-    // Ссылка на твою рабочую форму
-    const googleFormSubmitUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSeiIVydTlmSuEoxSN-9fvVYZy0hwZUnEWq_8O5q3v3XtBhl0w/formResponse';
-    
-    // Твои оригинальные entry ID полей, расставленные по цепочке отправки данных
-    const formFieldsIds = {
-      productTitle: 'entry.410943806',  
-      category: 'entry.1745484898',      
-      phone: 'entry.556272304',         
-      name: 'entry.1011850125'           
-    };
+    // ВШИТЫЕ КЛЮЧИ EMAILJS СЕРДАРА
+    const EMAILJS_PUBLIC_KEY = '5NSxNKBD8MUO2YZhK';
+    const EMAILJS_SERVICE_ID = 'service_pws3r78';
+    const EMAILJS_TEMPLATE_ID = 'template_9lqgao8';
+
+    // Инициализация библиотеки
+    emailjs.init(EMAILJS_PUBLIC_KEY);
 
     const translations = {
       ru: {
@@ -586,31 +585,29 @@
       btn.innerText = translations[currentLanguage].sending;
       btn.disabled = true;
 
-      // Формируем тело запроса строго в правильной последовательности
-      const formData = new URLSearchParams();
-      formData.append(formFieldsIds.productTitle, selectedItem.title);
-      formData.append(formFieldsIds.category, selectedItem.category);
-      formData.append(formFieldsIds.phone, phone);
-      formData.append(formFieldsIds.name, name);
-
       try { generateAndDownloadReceipt(name); } catch (e) {}
 
-      try {
-        await fetch(googleFormSubmitUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: formData.toString()
-        });
+      // Параметры для автоматического заполнения шаблона EmailJS
+      const templateParams = {
+        productTitle: selectedItem.title,
+        category: selectedItem.category,
+        phone: phone,
+        name: name
+      };
 
-        btn.style.background = '#00b67a';
-        btn.innerText = translations[currentLanguage].success;
-        setTimeout(() => { document.getElementById('productModal').style.display = 'none'; }, 1500);
-      } catch (error) {
-        alert(translations[currentLanguage].alertError);
-        btn.innerText = translations[currentLanguage].orderBtn2;
-        btn.disabled = false;
-      }
+      // Прямая отправка письма без выхода из приложения
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then(() => {
+          btn.style.background = '#00b67a';
+          btn.innerText = translations[currentLanguage].success;
+          setTimeout(() => { document.getElementById('productModal').style.display = 'none'; }, 1500);
+        })
+        .catch((error) => {
+          console.error("EmailJS Error:", error);
+          alert(translations[currentLanguage].alertError);
+          btn.innerText = translations[currentLanguage].orderBtn2;
+          btn.disabled = false;
+        });
     }
 
     function renderCatalog() {
