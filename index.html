@@ -10,7 +10,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="GÖZ Store">
   <link class="apple-touch-icon" rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
-
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <style>
@@ -222,10 +221,10 @@
     let favorites = JSON.parse(localStorage.getItem('goz_favorites')) || [];
     let isFavoritesMode = false;
 
-    // ВШИТЫЕ КЛЮЧИ EMAILJS СЕРДАРА
-    const EMAILJS_PUBLIC_KEY = '5NSxNKBD8MUO2YZhK';
-    const EMAILJS_SERVICE_ID = 'service_pws3r78';
-    const EMAILJS_TEMPLATE_ID = 'template_9lqgao8';
+   // НА СТРОКАХ 216-218 ЗАМЕНИ СТАРЫЕ ЗНАЧЕНИЯ НА ЭТИ:
+const EMAILJS_PUBLIC_KEY = '5NSxNKBD8MUO2YZhK'; // Твой публичный ключ
+const EMAILJS_SERVICE_ID = 'service_pws3r78';   // Твой Service ID (проверить в Email Services)[cite: 1]
+const EMAILJS_TEMPLATE_ID = 'sfp40n3';          // ВОТ ОН! Новый ID шаблона из адресной строки!
 
     // Инициализация библиотеки
     emailjs.init(EMAILJS_PUBLIC_KEY);
