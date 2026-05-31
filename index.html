@@ -220,18 +220,12 @@
     let currentLanguage = 'ru';
     let favorites = JSON.parse(localStorage.getItem('goz_favorites')) || [];
     let isFavoritesMode = false;
-// ОТКЛЮЧИ ЭТУ СТРОКУ:
-// emailjs.init(EMAILJS_PUBLIC_KEY);
-   // НА СТРОКАХ 216-218 ЗАМЕНИ СТАРЫЕ ЗНАЧЕНИЯ НА ЭТИ:
-const EMAILJS_PUBLIC_KEY = '5NSxNKBD8MUO2YZhK'; // Твой публичный ключ
-const EMAILJS_SERVICE_ID = 'service_pws3r78';   // Твой Service ID (проверить в Email Services)[cite: 1]
-const EMAILJS_TEMPLATE_ID = 'sfp40n3';          // ВОТ ОН! Новый ID шаблона из адресной строки!
-
-    // Инициализация библиотеки
-    emailjs.init(EMAILJS_PUBLIC_KEY);
-
-    const translations = {
-      ru: {
+    const EMAILJS_PUBLIC_KEY = '5NSxNKBD8MUO2YZhK';
+    const EMAILJS_SERVICE_ID = 'service_pws3r78';
+    const EMAILJS_TEMPLATE_ID = 'sfp40n3';
+    
+        const translations = {
+      ru: {      
         loading: "⏳ Загрузка лимитированной коллекции GÖZ...",
         error: "Не удалось загрузить коллекцию",
         empty: "В этой категории пока нет новинок",
@@ -587,29 +581,28 @@ const EMAILJS_TEMPLATE_ID = 'sfp40n3';          // ВОТ ОН! Новый ID ш
 
       try { generateAndDownloadReceipt(name); } catch (e) {}
 
-      // Параметры для автоматического заполнения шаблона EmailJS
-      const templateParams = {
-        productTitle: selectedItem.title,
-        category: selectedItem.category,
-        phone: phone,
-        name: name
-      };
+     // Параметры для автоматического заполнения шаблона EmailJS
+  const templateParams = {
+    productTitle: selectedItem.title,
+    category: selectedItem.category,
+    phone: phone,
+    name: name
+  };
 
-      // Прямая отправка письма без выхода из приложения
-      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-        .then(() => {
-          btn.style.background = '#00b67a';
-          btn.innerText = translations[currentLanguage].success;
-          setTimeout(() => { document.getElementById('productModal').style.display = 'none'; }, 1500);
-        })
-        .catch((error) => {
-          console.error("EmailJS Error:", error);
-          alert(translations[currentLanguage].alertError);
-          btn.innerText = translations[currentLanguage].orderBtn2;
-          btn.disabled = false;
-        });
-    }
-
+  // Передаем EMAILJS_PUBLIC_KEY 4-м параметром, чтобы обойти блокировку Tracking Prevention
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY)
+    .then(() => {
+      btn.style.background = '#00b67a';
+      btn.innerText = translations[currentLanguage].success;
+      setTimeout(() => { document.getElementById('productModal').style.display = 'none'; }, 1500);
+    })
+    .catch((error) => {
+      console.error("EmailJS Error:", error);
+      alert(translations[currentLanguage].alertError);
+      btn.innerText = translations[currentLanguage].orderBtn2;
+      btn.disabled = false;
+    });
+}
     function renderCatalog() {
       const catalogDiv = document.getElementById('catalog');
       const emptyDiv = document.getElementById('empty');
