@@ -312,7 +312,7 @@
 
     async function loadProducts() {
       try {
-        const res = await fetch('/api/products');
+        const res = await fetch('https://tm-store-seven2.vercel.app/api/products');
         if (!res.ok) throw new Error();
         allProducts = await res.json();
         updateFavoritesBadge();
