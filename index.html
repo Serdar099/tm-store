@@ -220,7 +220,8 @@
     let currentLanguage = 'ru';
     let favorites = JSON.parse(localStorage.getItem('goz_favorites')) || [];
     let isFavoritesMode = false;
-
+// ОТКЛЮЧИ ЭТУ СТРОКУ:
+// emailjs.init(EMAILJS_PUBLIC_KEY);
    // НА СТРОКАХ 216-218 ЗАМЕНИ СТАРЫЕ ЗНАЧЕНИЯ НА ЭТИ:
 const EMAILJS_PUBLIC_KEY = '5NSxNKBD8MUO2YZhK'; // Твой публичный ключ
 const EMAILJS_SERVICE_ID = 'service_pws3r78';   // Твой Service ID (проверить в Email Services)[cite: 1]
