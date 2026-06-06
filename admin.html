@@ -3,52 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GÖZ Store | Управление витриной</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
-    body { background: #0b0b0c; color: #f5f5f7; padding: 20px 10px; -webkit-font-smoothing: antialiased; }
-    
-    .container { max-width: 550px; margin: 0 auto; }
-    .admin-box { background: #121214; border-radius: 24px; padding: 24px; border: 1px solid rgba(223, 186, 107, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 25px; }
-    h1, h2 { color: #dfba6b; font-size: 22px; font-weight: 900; text-align: center; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; }
-    h2 { font-size: 18px; margin-top: 10px; margin-bottom: 15px; text-align: left; border-left: 3px solid #dfba6b; padding-left: 10px; }
-    
-    .form-group { margin-bottom: 16px; }
-    label { display: block; font-size: 13px; color: #86868b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, select, textarea { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px; border-radius: 12px; color: #fff; font-size: 15px; transition: all 0.3s; }
-    input:focus, select:focus, textarea:focus { border-color: #dfba6b; outline: none; background: rgba(255, 255, 255, 0.07); }
-    
-    .submit-btn { background: linear-gradient(135deg, #dfba6b 0%, #b89344 100%); color: #0b0b0c; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(223, 186, 107, 0.2); letter-spacing: 0.5px; margin-top: 10px; }
-    .submit-btn:active { transform: scale(0.98); }
-    
-    .back-btn { display: block; text-align: center; margin-top: 20px; color: #a1a1a6; font-size: 14px; text-decoration: none; font-weight: 600; }
-    .back-btn:hover { color: #dfba6b; }
-    
-    #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; display: none; }
-    .success { color: #00b67a; }
-    .error { color: #ff453a; }
+  <title>GÖZ Store | Admin CRM</title>
+  
+  <link class="apple-touch-icon" rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
 
-    .products-list { display: flex; flex-direction: column; gap: 12px; }
-    .product-item { background: #121214; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .p-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-    .p-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #1c1c1e; flex-shrink: 0; }
-    .p-text { overflow: hidden; }
-    .p-title { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .p-price { font-size: 13px; color: #dfba6b; font-weight: 700; margin-top: 4px; }
-    .delete-btn { background: rgba(255, 69, 58, 0.1); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.2); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .delete-btn:active { background: #ff453a; color: #fff; }
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg-body: #0b0b0c;
+      --bg-card: #121214;
+      --bg-input: rgba(255, 255, 255, 0.03);
+      --border-color: rgba(255, 255, 255, 0.07);
+      --text-main: #f5f5f7;
+      --text-muted: #a1a1a6;
+      --gold: #dfba6b;
+      --gold-dark: #b89344;
+      --shadow: rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+    body { background: var(--bg-body); color: var(--text-main); padding-bottom: 60px; -webkit-font-smoothing: antialiased; }
+    
+    header { 
+      background: rgba(18, 18, 19, 0.85); 
+      backdrop-filter: blur(25px); 
+      -webkit-backdrop-filter: blur(25px); 
+      color: var(--gold); 
+      padding: 15px 20px; 
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+      border-bottom: 1px solid rgba(223, 186, 107, 0.15);
+    }
+    
+    .brand-title { font-size: 18px; font-weight: 900; letter-spacing: 3px; }
+    
+    .top-action-btn { 
+      background: rgba(223, 186, 107, 0.1); 
+      border: 1px solid rgba(223, 186, 107, 0.2); 
+      color: var(--gold); 
+      padding: 10px 16px; 
+      border-radius: 12px; 
+      font-size: 14px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+    .order-badge { background: #ef4444; color: white; font-size: 11px; padding: 1px 7px; border-radius: 10px; font-weight: bold; }
+
+    .container { max-width: 600px; margin: 20px auto; padding: 0 12px; }
+    
+    .admin-section { background: var(--bg-card); border-radius: 24px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 25px; box-shadow: 0 10px 30px var(--shadow); }
+    .section-title { font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; color: var(--gold); }
+    
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .input-field, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px; color: #fff; font-size: 15px; outline: none; }
+    .input-field:focus, select:focus { border-color: var(--gold); }
+    
+    .file-label { display: block; background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; color: var(--text-muted); font-size: 14px; }
+    #productImage { display: none; }
+    .preview-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .preview-img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+
+    .btn-submit { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #0b0b0c; width: 100%; padding: 16px; font-size: 15px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; }
+    .btn-submit:disabled { background: #333; color: #666; }
+
+    .product-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+    .product-list-item:last-child { border-bottom: none; }
+    .prod-meta { display: flex; align-items: center; gap: 12px; }
+    .prod-img { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; background: #1c1c1e; }
+    .prod-details { font-size: 14px; }
+    .prod-title { font-weight: 600; color: #fff; }
+    .prod-price { color: var(--gold); font-size: 13px; font-weight: 700; margin-top: 2px; }
+    .btn-delete { background: none; border: none; color: #ef4444; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    /* Окно заказов */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: center; z-index: 200; }
+    .modal-box { background: var(--bg-card); border-radius: 24px; width: 95%; max-width: 550px; padding: 24px; max-height: 85vh; overflow-y: auto; border: 1px solid rgba(223, 186, 107, 0.15); position: relative; }
+    .close-modal { position: absolute; top: 18px; right: 18px; font-size: 24px; color: var(--text-muted); cursor: pointer; background: none; border: none; }
+
+    .order-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .order-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .order-row { display: flex; margin-bottom: 6px; font-size: 14px; }
+    .order-label { width: 100px; color: var(--text-muted); font-size: 13px; }
+    .order-value { font-weight: 600; color: #fff; }
+    .order-phone-link { color: #38bdf8; text-decoration: none; font-weight: bold; }
   </style>
 </head>
 <body>
 
+  <header>
+    <div class="brand-title">GÖZ ADMIN CRM</div>
+    <button class="top-action-btn" onclick="openOrdersModal()">
+      📋 ЗАКАЗЫ <span id="ordersCount" class="order-badge">0</span>
+    </button>
+  </header>
+
   <div class="container">
-    <div class="admin-box">
-      <h1>Добавить товар в GÖZ</h1>
-      
-      <form id="productForm" onsubmit="saveProduct(event)">
+    
+    <div class="admin-section">
+      <div class="section-title">Добавить Новый Товар</div>
+      <form id="productForm" onsubmit="handleFormSubmit(event)">
         <div class="form-group">
           <label>Название товара</label>
-          <input type="text" id="title" placeholder="Например: Очки Авиаторы Gold" required>
+          <input type="text" id="title" class="input-field" placeholder="Например: Очки Cartier Gold" required>
         </div>
         
         <div class="form-group">
@@ -62,145 +127,172 @@
             <option value="Ремонт очков">Ремонт очков</option>
           </select>
         </div>
-        
+
         <div class="form-group">
-          <label>Цена (в TMT)</label>
-          <input type="number" id="price" placeholder="Цена без букв, например: 250" required>
+          <label>Цена (TMT)</label>
+          <input type="number" id="price" class="input-field" placeholder="1500" required>
         </div>
-        
+
         <div class="form-group">
-          <label>Ссылка на фото (Google Диск)</label>
-          <input type="url" id="image" placeholder="Вставь ссылку на картинку товара" required>
+          <label>Описание</label>
+          <textarea id="description" class="input-field" rows="3" placeholder="Премиальное качество, комплектация..."></textarea>
         </div>
-        
+
         <div class="form-group">
-          <label>Описание товара</label>
-          <textarea id="description" rows="3" placeholder="Укажи материал, размер или особенности товара..."></textarea>
+          <label>Фотографии товара</label>
+          <div class="file-input-wrapper">
+            <label for="productImage" class="file-label" id="fileLabel">📁 Выбрать фото из галереи</label>
+            <input type="file" id="productImage" accept="image/*" multiple onchange="handleFileSelect(event)">
+          </div>
+          <div id="previewContainer" class="preview-container"></div>
         </div>
-        
-        <button type="submit" class="submit-btn">Опубликовать на витрину</button>
-        <div id="status"></div>
+
+        <button type="submit" id="submitBtn" class="btn-submit">Опубликовать на витрину</button>
       </form>
     </div>
 
-    <div class="admin-box">
-      <h2>Текущий ассортимент</h2>
-      <div id="productsList" class="products-list">
-        <div style="text-align:center; color:#86868b; font-size:14px; padding:10px;">⏳ Загрузка списка товаров...</div>
+    <div class="admin-section">
+      <div class="section-title">Текущая витрина сайта</div>
+      <div id="productsAdminList">⏳ Загрузка товаров...</div>
+    </div>
+
+  </div>
+
+  <div id="ordersModal" class="modal-overlay" onclick="closeOrdersModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="close-modal" onclick="document.getElementById('ordersModal').style.display='none'">&times;</button>
+      <div class="section-title" style="margin-bottom: 20px; font-size: 18px;">📋 Все поступающие заказы</div>
+      <div id="ordersContainer">
+        <div style="text-align:center; color:var(--text-muted); padding:20px;">Новых заказов пока нет</div>
       </div>
     </div>
-    
-    <a href="/" class="back-btn">← Вернуться на главную витрину</a>
   </div>
 
   <script>
-    // Всеядная функция очистки ссылок Google Drive
-    function cleanGoogleDriveLink(url) {
-      if (!url) return '';
-      if (url.includes('drive.google.com')) {
-        let id = '';
-        if (url.includes('/file/d/')) { id = url.split('/file/d/')[1].split('/')[0]; }
-        else if (url.includes('/d/')) { id = url.split('/d/')[1].split('/')[0]; }
-        else if (url.includes('id=')) { id = url.split('id=')[1].split('&')[0]; }
-        if (id) return `https://docs.google.com/uc?export=view&id=${id}`;
-      }
-      return url;
-    }
+    const SUPABASE_URL = "https://wocvffbthbylgftgvyve.supabase.co"; 
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvY3ZmZmJ0aGJ5bGdmdGd2eXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3ODksImV4cCI6MjAzMjQ2NDc4OX0.VkZfX2stQWxIdmxhTkNDdlJ1WGlwZFlmSUZzN2ktbkoxQ0dfSmluYV9V";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function fetchAdminProducts() {
-      const listDiv = document.getElementById('productsList');
-      try {
-        const res = await fetch('/api/products');
-        if (!res.ok) throw new Error();
-        const products = await res.json();
-        
-        if(products.length === 0) {
-          listDiv.innerHTML = '<div style="text-align:center; color:#86868b; font-size:14px; padding:10px;">На витрине пока нет товаров</div>';
-          return;
+    let base64Images = [];
+
+    function handleFileSelect(event) {
+      const files = event.target.files;
+      const previewContainer = document.getElementById('previewContainer');
+      previewContainer.innerHTML = ''; base64Images = [];
+
+      if(files.length === 0) {
+        document.getElementById('fileLabel').innerText = "📁 Выбрать фото из галереи"; return;
+      }
+      document.getElementById('fileLabel').innerText = `✅ Выбрано фото: ${files.length}`;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          base64Images.push(e.target.result);
+          const img = document.createElement('img');
+          img.src = e.target.result; img.className = 'preview-img';
+          previewContainer.appendChild(img);
         }
-
-        listDiv.innerHTML = '';
-        products.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'product-item';
-          row.innerHTML = `
-            <div class="p-info">
-              <img class="p-img" src="${cleanGoogleDriveLink(item.image)}" alt="">
-              <div class="p-text">
-                <div class="p-title">${item.title}</div>
-                <div class="p-price">${item.price} TMT</div>
-              </div>
-            </div>
-            <button class="delete-btn" onclick="deleteProduct('${item.id || item._id}', this)">Удалить</button>
-          `;
-          listDiv.appendChild(row);
-        });
-      } catch(err) {
-        listDiv.innerHTML = '<div style="text-align:center; color:#ff453a; font-size:14px; padding:10px;">Ошибка загрузки товаров</div>';
-      }
+        reader.readAsDataURL(file);
+      });
     }
 
-    async function saveProduct(event) {
+    async function handleFormSubmit(event) {
       event.preventDefault();
-      const statusDiv = document.getElementById('status');
-      statusDiv.style.display = 'block';
-      statusDiv.className = '';
-      statusDiv.innerText = '⏳ Сохранение на сервере...';
+      const btn = document.getElementById('submitBtn');
+      if(base64Images.length === 0) { alert("Добавьте хотя бы одно фото."); return; }
 
-      const payload = {
-        title: document.getElementById('title').value,
-        category: document.getElementById('category').value,
-        price: document.getElementById('price').value,
-        image: document.getElementById('image').value,
-        description: document.getElementById('description').value
-      };
+      btn.innerText = "⏳ Публикация..."; btn.disabled = true;
 
-      try {
-        const res = await fetch('/api/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+      const title = document.getElementById('title').value.trim();
+      const category = document.getElementById('category').value;
+      const price = document.getElementById('price').value;
+      const description = document.getElementById('description').value.trim();
+      const imageUrlsString = base64Images.join(',');
 
-        if (res.ok) {
-          statusDiv.className = 'success';
-          statusDiv.innerText = '✅ Товар успешно добавлен!';
-          document.getElementById('productForm').reset();
-          fetchAdminProducts();
-        } else {
-          throw new Error();
-        }
-      } catch (err) {
-        statusDiv.className = 'error';
-        statusDiv.innerText = '❌ Не удалось добавить товар.';
+      const { error } = await supabase.from('products').insert([
+        { title, category, price, description, image: imageUrlsString }
+      ]);
+
+      if (error) {
+        alert("Ошибка: " + error.message);
+      } else {
+        alert("🎉 Товар успешно опубликован в магазине!");
+        document.getElementById('productForm').reset();
+        document.getElementById('previewContainer').innerHTML = '';
+        document.getElementById('fileLabel').innerText = "📁 Выбрать фото из галереи";
+        base64Images = []; loadProducts();
       }
+      btn.innerText = "Опубликовать на витрину"; btn.disabled = false;
     }
 
-    async function deleteProduct(productId, btnElement) {
-      if (!confirm('Вы уверены, что хотите полностью удалить этот товар с витрины?')) return;
+    async function loadProducts() {
+      const container = document.getElementById('productsAdminList');
+      const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+      if (error || !data) { container.innerText = "Ошибка загрузки витрины."; return; }
+      if(data.length === 0) { container.innerText = "На витрине нет товаров."; return; }
+
+      container.innerHTML = '';
+      data.forEach(item => {
+        const firstImg = item.image.split(',')[0];
+        const row = document.createElement('div');
+        row.className = 'product-list-item';
+        row.innerHTML = `
+          <div class="prod-meta">
+            <img src="${firstImg}" class="prod-img">
+            <div class="prod-details">
+              <div class="prod-title">${item.title}</div>
+              <div class="prod-price">${item.price} TMT | <span style="color:var(--text-muted)">${item.category}</span></div>
+            </div>
+          </div>
+          <button class="btn-delete" onclick="deleteProduct(${item.id})">Удалить</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    async function deleteProduct(id) {
+      if(!confirm("Удалить этот товар из магазина?")) return;
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if(!error) loadProducts();
+    }
+
+    async function loadOrders() {
+      const { data, error } = await supabase.from('orders').select('*').order('id', { ascending: false });
+      if (error || !data) return;
+      document.getElementById('ordersCount').innerText = data.length;
       
-      const originalText = btnElement.innerText;
-      btnElement.innerText = '⏳...';
-      btnElement.disabled = true;
-
-      try {
-        const res = await fetch(`/api/products?id=${productId}`, {
-          method: 'DELETE'
-        });
-
-        if (res.ok) {
-          btnElement.closest('.product-item').remove();
-        } else {
-          throw new Error();
-        }
-      } catch(err) {
-        alert('Не удалось удалить товар. Попробуйте еще раз.');
-        btnElement.innerText = originalText;
-        btnElement.disabled = false;
+      const container = document.getElementById('ordersContainer');
+      if(data.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Заказов пока нет</div>`; return;
       }
+
+      container.innerHTML = '';
+      data.forEach(order => {
+        const date = new Date(order.created_at).toLocaleString('ru-RU', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' });
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        card.innerHTML = `
+          <div class="order-header"><span>ЗАКАЗ №${order.id}</span><span>${date}</span></div>
+          <div class="order-row"><div class="order-label">Клиент:</div><div class="order-value" style="color:var(--gold);">${order.name}</div></div>
+          <div class="order-row"><div class="order-label">Телефон:</div><div class="order-value"><a href="tel:${order.phone}" class="order-phone-link">${order.phone}</a></div></div>
+          <div class="order-row"><div class="order-label">Товар:</div><div class="order-value">${order.product_title}</div></div>
+          <div class="order-row"><div class="order-label">Категория:</div><div class="order-value" style="color:var(--text-muted); font-size:13px;">${order.category}</div></div>
+          <div class="order-row"><div class="order-label">Сумма:</div><div class="order-value" style="color:var(--gold); font-weight:700;">${order.price} TMT</div></div>
+        `;
+        container.appendChild(card);
+      });
     }
 
-    fetchAdminProducts();
+    function openOrdersModal() {
+      document.getElementById('ordersModal').style.display = 'flex'; loadOrders();
+    }
+    function closeOrdersModal(event) {
+      if(event.target.id === 'ordersModal') document.getElementById('ordersModal').style.display = 'none';
+    }
+
+    loadProducts(); loadOrders();
+    setInterval(loadOrders, 15000); // Автопроверка новых заказов каждые 15 сек
   </script>
 </body>
 </html>
