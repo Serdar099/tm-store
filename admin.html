@@ -84,7 +84,7 @@
     .prod-price { color: var(--gold); font-size: 13px; font-weight: 700; margin-top: 2px; }
     .btn-delete { background: none; border: none; color: #ef4444; font-size: 14px; font-weight: 600; cursor: pointer; }
 
-    /* Окно заказов */
+    /* Журнал заказов */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: center; z-index: 200; }
     .modal-box { background: var(--bg-card); border-radius: 24px; width: 95%; max-width: 550px; padding: 24px; max-height: 85vh; overflow-y: auto; border: 1px solid rgba(223, 186, 107, 0.15); position: relative; }
     .close-modal { position: absolute; top: 18px; right: 18px; font-size: 24px; color: var(--text-muted); cursor: pointer; background: none; border: none; }
@@ -169,6 +169,7 @@
   </div>
 
   <script>
+    // Подключение к твоей базе данных Supabase в панели администратора
     const SUPABASE_URL = "https://wocvffbthbylgftgvyve.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvY3ZmZmJ0aGJ5bGdmdGd2eXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3ODksImV4cCI6MjAzMjQ2NDc4OX0.VkZfX2stQWxIdmxhTkNDdlJ1WGlwZFlmSUZzN2ktbkoxQ0dfSmluYV9V";
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -292,7 +293,7 @@
     }
 
     loadProducts(); loadOrders();
-    setInterval(loadOrders, 15000); // Автопроверка новых заказов каждые 15 сек
+    setInterval(loadOrders, 15000); // Автоматическое обновление заказов раз в 15 сек
   </script>
 </body>
 </html>
