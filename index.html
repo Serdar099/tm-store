@@ -61,7 +61,7 @@
     .icon-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; transition: background 0.2s; }
     .badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; }
 
-    /* Бургер-меню */
+    /* Меню выбора коллекций */
     .burger-menu { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #121214; z-index: 250; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 5px 0 30px rgba(0,0,0,0.7); border-right: 1px solid rgba(223, 186, 107, 0.15); padding: 30px 20px; display: flex; flex-direction: column; }
     .burger-menu.open { transform: translateX(0); }
     .burger-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 240; display: none; }
@@ -70,17 +70,18 @@
     .cat-list { display: flex; flex-direction: column; gap: 8px; }
     .cat-item { background: rgba(255, 255, 255, 0.02); color: #f5f5f7; border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 18px; border-radius: 12px; text-align: left; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .cat-item.active { background: var(--gold); color: #0b0b0c; border-color: var(--gold); }
+    
     .lang-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
     .lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
     .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .lang-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(223, 186, 107, 0.1); }
 
-    /* Поиск */
+    /* Блок поиска */
     .search-container { max-width: 600px; margin: 15px auto 5px auto; padding: 0 16px; }
     .search-bar { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 14px 16px; border-radius: 14px; font-size: 15px; outline: none; }
     .search-bar:focus { border-color: var(--gold); }
 
-    /* Каталог */
+    /* Ограниченная сетка */
     .container { max-width: 600px; margin: 0 auto; padding: 8px; }
     .loading, .empty { text-align: center; padding: 80px 20px; color: var(--text-muted); font-size: 16px; font-weight: 500; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -96,25 +97,20 @@
     .card-price { color: var(--gold); font-weight: 700; font-size: 17px; margin-bottom: 14px; letter-spacing: 0.5px; }
     .order-btn { background: rgba(255, 255, 255, 0.06); color: var(--text-main); border: 1px solid var(--border-color); width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; }
 
-    /* Модалка деталей товара */
+    /* Окно карточки товара */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
     .modal-box { background: var(--bg-card); border-radius: 30px 30px 0 0; width: 100%; max-width: 550px; padding: 30px 24px 24px 24px; max-height: 90vh; overflow-y: auto; position: relative; border-top: 1px solid rgba(223, 186, 107, 0.2); }
     .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; color: var(--text-muted); cursor: pointer; border: none; background: rgba(255, 255, 255, 0.05); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; }
     
-    /* Слайдер */
+    /* Слайдер картинок Base64 */
     .slider-container { width: 100%; position: relative; overflow: hidden; border-radius: 20px; background: #1c1c1e; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 10px; }
     .slider-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .slider-track::-webkit-scrollbar { display: none; }
-    .slider-slide { min-width: 100%; aspect-ratio: 4 / 3; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: zoom-in; }
+    .slider-slide { min-width: 100%; aspect-ratio: 4 / 3; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     .slider-slide img { max-width: 100%; max-height: 100%; object-fit: contain; }
     .slider-dots { display: flex; justify-content: center; gap: 6px; margin: 8px 0 15px 0; }
     .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 50%; transition: background 0.2s; }
     .dot.active { background: var(--gold); width: 18px; border-radius: 3px; }
-
-    /* Zoom */
-    .zoom-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 300; display: none; justify-content: center; align-items: center; }
-    .zoom-img { max-width: 95%; max-height: 85vh; object-fit: contain; border-radius: 8px; }
-    .zoom-close { position: absolute; top: 25px; right: 25px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 28px; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
     .modal-title { font-size: 22px; font-weight: 700; color: #fff; margin: 10px 0 8px 0; line-height: 1.3; }
     .modal-price { font-size: 26px; color: var(--gold); font-weight: 800; margin-bottom: 15px; letter-spacing: 0.5px; }
@@ -155,11 +151,6 @@
         <button class="lang-btn" onclick="setLanguage('en')">EN</button>
       </div>
     </div>
-  </div>
-
-  <div id="zoomOverlay" class="zoom-overlay" onclick="closeZoom()">
-    <button class="zoom-close" onclick="closeZoom()">&times;</button>
-    <img id="zoomImg" class="zoom-img" src="" alt="" onclick="event.stopPropagation()">
   </div>
 
   <header>
@@ -212,7 +203,7 @@
   </div>
 
   <script>
-    // Подключение твоей базы данных Supabase
+    // Подключение к твоей базе данных Supabase
     const SUPABASE_URL = "https://wocvffbthbylgftgvyve.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvY3ZmZmJ0aGJ5bGdmdGd2eXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3ODksImV4cCI6MjAzMjQ2NDc4OX0.VkZfX2stQWxIdmxhTkNDdlJ1WGlwZFlmSUZzN2ktbkoxQ0dfSmluYV9V";
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -228,7 +219,7 @@
     const translations = {
       ru: {
         loading: "⏳ Загрузка лимитированной коллекции GÖZ...",
-        error: "Не удалось загрузить коллекцию",
+        error: "Не удалось загрузить коллекцию. Проверьте интернет.",
         empty: "В этой категории пока нет новинок",
         searchPlaceholder: "Поиск эксклюзивных моделей...",
         allCats: "Все коллекции",
@@ -241,42 +232,34 @@
         orderBtn1: "Быстрый заказ в 1 клик",
         orderBtn2: "Подтвердить заказ",
         sending: "⏳ Оформление заказа...",
-        success: "✅ Успешно заказано! Чек скачан",
+        success: "✅ Успешно заказано!",
         alertFields: "Пожалуйста, заполните поля «Ваше имя» и «Номер телефона».",
         alertError: "Произошла ошибка при отправке. Попробуйте еще раз.",
-        receiptTitle: "PREMIUM BOUTIQUE RECEIPT",
-        receiptBuyer: "Покупатель:",
-        receiptTime: "Время заказа:",
-        receiptThanks: "Спасибо вам за покупку! Ждем вас снова.",
         favEmpty: "В списке избранного пока пусто ♡"
       },
       tm: {
         loading: "⏳ GÖZ ekskluziw kolleksiýasy ýüklenýär...",
-        error: "Kolleksiýany ýükläp bolmady",
+        error: "Kolleksiýany ýükläp bolmady. Internedi barlap görün.",
         empty: "Bu kategoriýada entek täzelik ýok",
         searchPlaceholder: "Ekskluziw modelleri gözle...",
         allCats: "Ähli kolleksiýalar",
         categoriesTitle: "Kolleksiýalar",
         viewBtn: "Görmek",
         details: "Ekskluziw detallar",
-        checkoutTitle: "Sargyt üçin kontakt maglumatlary",
+        checkoutTitle: "Sargyt üçün kontakt maglumatlary",
         namePlaceholder: "Adyňyz",
         phonePlaceholder: "Telefon belgiňiz (+993...)",
         orderBtn1: "1 basymda sargyt etmek",
         orderBtn2: "Sargydy tassyklamak",
         sending: "⏳ Sargyt resmileşdirilýär...",
-        success: "✅ Sargyt edildi! Çek ýüklenildi",
+        success: "✅ Sargyt edildi!",
         alertFields: "Hahyş, «Adyňyz» we «Telefon belgiňiz» meýdançalaryny dolduryň.",
         alertError: "Ugratmakda säwlik ýüze çykdy. Täzeden synanyşyň.",
-        receiptTitle: "PREMIUM BUTIK ÇEKI",
-        receiptBuyer: "Alyjy:",
-        receiptTime: "Sargyt wagty:",
-        receiptThanks: "Sargydyňyz üçin sag boluň! Ýene-de garaşýarys.",
         favEmpty: "Halanýanlar sanawyňyz entek boş ♡"
       },
       en: {
         loading: "⏳ Loading GÖZ limited collection...",
-        error: "Failed to load collection",
+        error: "Failed to load collection. Check connection.",
         empty: "No new arrivals in this category yet",
         searchPlaceholder: "Search exclusive models...",
         allCats: "All Collections",
@@ -289,13 +272,9 @@
         orderBtn1: "Quick 1-Click Order",
         orderBtn2: "Confirm Order",
         sending: "⏳ Processing your order...",
-        success: "✅ Order Placed! Receipt Downloaded",
+        success: "✅ Order Placed Successfully!",
         alertFields: "Please fill out 'Your Name' and 'Phone Number' fields.",
         alertError: "An error occurred. Please try again.",
-        receiptTitle: "PREMIUM BOUTIQUE RECEIPT",
-        receiptBuyer: "Buyer:",
-        receiptTime: "Order Time:",
-        receiptThanks: "Thank you for your purchase! Welcome back.",
         favEmpty: "Your wishlist is empty ♡"
       }
     };
@@ -309,6 +288,7 @@
         renderCatalog();
       } catch (err) {
         document.getElementById('loading').innerText = translations[currentLanguage].error;
+        console.error("Supabase load error:", err);
       }
     }
 
@@ -395,7 +375,6 @@
       imagesArr.forEach((imgUrl, idx) => {
         const slide = document.createElement('div');
         slide.className = 'slider-slide';
-        slide.onclick = () => openZoom(imgUrl);
         slide.innerHTML = `<img src="${imgUrl}" alt="">`;
         track.appendChild(slide);
 
@@ -431,13 +410,6 @@
       dots.forEach((dot, idx) => { dot.classList.toggle('active', idx === index); });
     }
 
-    function openZoom(imgUrl) {
-      document.getElementById('zoomImg').src = imgUrl;
-      document.getElementById('zoomOverlay').style.display = 'flex';
-    }
-
-    function closeZoom() { document.getElementById('zoomOverlay').style.display = 'none'; }
-
     function closeProductModal(event) {
       if(event.target.id === 'productModal') { document.getElementById('productModal').style.display = 'none'; }
     }
@@ -455,83 +427,6 @@
       }
     }
 
-    function generateAndDownloadReceipt(clientName) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = 600; canvas.height = 850;
-
-      const isLightTheme = document.body.getAttribute('data-theme') === 'light';
-      ctx.fillStyle = isLightTheme ? '#0f2042' : '#0b0b0c';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.strokeStyle = isLightTheme ? 'rgba(252, 211, 77, 0.3)' : 'rgba(223, 186, 107, 0.2)';
-      ctx.lineWidth = 4; ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-
-      ctx.fillStyle = isLightTheme ? '#fcd34d' : '#dfba6b';
-      ctx.font = 'bold 32px -apple-system, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('GÖZ STORE', canvas.width / 2, 80);
-
-      ctx.fillStyle = isLightTheme ? '#cbd5e1' : '#86868b';
-      ctx.font = '16px -apple-system, sans-serif';
-      ctx.fillText(translations[currentLanguage].receiptTitle, canvas.width / 2, 110);
-
-      ctx.fillStyle = isLightTheme ? 'rgba(252, 211, 77, 0.3)' : 'rgba(223, 186, 107, 0.3)';
-      ctx.fillRect(50, 130, canvas.width - 100, 2);
-
-      const firstImgUrl = selectedItem.image.split(',')[0];
-      const productImg = new Image();
-      productImg.crossOrigin = 'anonymous'; 
-      productImg.src = firstImgUrl;
-
-      productImg.onload = function() {
-        const imgSize = 300; const imgX = (canvas.width - imgSize) / 2; const imgY = 160;
-        ctx.fillStyle = isLightTheme ? '#1a315e' : '#121214'; ctx.fillRect(imgX, imgY, imgSize, imgSize);
-        ctx.drawImage(productImg, imgX, imgY, imgSize, imgSize);
-        drawTextData();
-      };
-
-      productImg.onerror = function() {
-        const imgSize = 300; const imgX = (canvas.width - imgSize) / 2; const imgY = 160;
-        ctx.fillStyle = isLightTheme ? '#1a315e' : '#121214'; ctx.fillRect(imgX, imgY, imgSize, imgSize);
-        drawTextData();
-      };
-
-      function drawTextData() {
-        ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 24px -apple-system, sans-serif';
-        const titleText = selectedItem.title.length > 35 ? selectedItem.title.substring(0, 35) + '...' : selectedItem.title;
-        ctx.fillText(titleText, 50, 520);
-
-        ctx.fillStyle = isLightTheme ? '#fcd34d' : '#dfba6b'; ctx.font = 'bold 28px -apple-system, sans-serif';
-        ctx.fillText(`${selectedItem.price} TMT`, 50, 565);
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; ctx.fillRect(50, 595, canvas.width - 100, 1);
-
-        ctx.fillStyle = isLightTheme ? '#cbd5e1' : '#86868b'; ctx.font = '16px -apple-system, sans-serif';
-        ctx.fillText(translations[currentLanguage].receiptBuyer, 50, 630);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px -apple-system, sans-serif';
-        ctx.fillText(clientName, 180, 630);
-
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('ru-RU');
-        const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-
-        ctx.fillStyle = isLightTheme ? '#cbd5e1' : '#86868b'; ctx.font = '16px -apple-system, sans-serif';
-        ctx.fillText(translations[currentLanguage].receiptTime, 50, 670);
-        ctx.fillStyle = '#ffffff'; ctx.font = '18px -apple-system, sans-serif';
-        ctx.fillText(`${dateStr} - ${timeStr}`, 180, 670);
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; ctx.fillRect(50, 710, canvas.width - 100, 1);
-
-        ctx.textAlign = 'center'; ctx.fillStyle = isLightTheme ? '#fcd34d' : '#dfba6b'; ctx.font = 'italic 18px -apple-system, sans-serif';
-        ctx.fillText(translations[currentLanguage].receiptThanks, canvas.width / 2, 760);
-
-        const link = document.createElement('a');
-        link.download = `GOZ-Receipt-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }
-    }
-
     async function submitOrderDirectly() {
       const name = document.getElementById('clientName').value.trim();
       const phone = document.getElementById('clientPhone').value.trim();
@@ -542,9 +437,6 @@
       btn.innerText = translations[currentLanguage].sending;
       btn.disabled = true;
 
-      try { generateAndDownloadReceipt(name); } catch (e) {}
-
-      // ОТПРАВКА ЗАКАЗА НАПРЯМУЮ В ТАБЛИЦУ Supabase
       const { data, error } = await supabase.from('orders').insert([
         { 
           name: name, 
@@ -563,7 +455,7 @@
       } else {
         btn.style.background = '#00b67a';
         btn.innerText = translations[currentLanguage].success;
-        setTimeout(() => { document.getElementById('productModal').style.display = 'none'; }, 1500);
+        setTimeout(() => { document.getElementById('productModal').style.display = 'none'; btn.style.background = ''; }, 1500);
       }
     }
 
