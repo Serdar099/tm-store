@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GÖZ Store</title>
-  
   <link rel="manifest" href="manifest.json">
   <link class="apple-touch-icon" rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
       --bg-main: #0b0b0c;
@@ -18,10 +15,8 @@
       --text-main: #f5f5f7;
       --text-muted: #8e8e93;
       --gold: #dfba6b;
-      --gold-dark: #b89344;
       --shadow: rgba(0, 0, 0, 0.6);
     }
-
     .light-theme {
       --bg-main: #f5f5f7;
       --bg-card: #ffffff;
@@ -29,69 +24,52 @@
       --text-main: #1d1d1f;
       --text-muted: #86868b;
       --gold: #b89344;
-      --gold-dark: #8a6d30;
       --shadow: rgba(0, 0, 0, 0.05);
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg-main); color: var(--text-main); transition: background 0.3s, color 0.3s; padding-bottom: 50px; overflow-x: hidden; }
-
-    header { 
-      background: rgba(18, 18, 20, 0.8); 
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      position: sticky; top: 0; z-index: 100;
-      padding: 15px 20px; display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-main); color: var(--text-main); padding-bottom: 50px; }
+    header { background: rgba(18, 18, 20, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); }
     .light-theme header { background: rgba(255, 255, 255, 0.8); }
     .logo { font-size: 20px; font-weight: 900; letter-spacing: 4px; color: var(--gold); text-decoration: none; }
-
-    /* Поиск и Фильтры каталогов */
+    
     .search-box { padding: 12px 16px; }
     .search-input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 14px; color: var(--text-main); font-size: 15px; outline: none; }
-
+    
     .categories-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 5px 16px 15px 16px; scrollbar-width: none; }
     .categories-scroll::-webkit-scrollbar { display: none; }
-    .cat-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 9px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; }
+    .cat-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 9px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; }
     .cat-btn.active { background: var(--gold); color: #0b0b0c; border-color: var(--gold); }
-
-    /* Сетка товаров (Каталог) */
+    
     .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; }
-    .product-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px var(--shadow); position: relative; display: flex; flex-direction: column; }
+    .product-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px var(--shadow); display: flex; flex-direction: column; cursor: pointer; }
     .img-wrapper { position: relative; width: 100%; padding-top: 100%; background: #1c1c1e; }
     .card-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    
     .card-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 4px; }
+    .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; height: 36px; overflow: hidden; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .card-price { color: var(--gold); font-size: 15px; font-weight: 700; }
-
-    /* Премиальное всплывающее окно товара */
+    
     .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
-    .popup-box { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; max-height: 90vh; overflow-y: auto; padding-bottom: 40px; border-top: 1px solid rgba(223, 186, 107, 0.2); position: relative; animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .close-popup { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer; z-index: 210; }
-
-    /* Слайдер картинок в поп-апе */
+    .popup-box { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; max-height: 90vh; overflow-y: auto; padding-bottom: 40px; position: relative; }
+    .close-popup { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; font-weight: bold; z-index: 210; cursor: pointer; }
+    
     .slider-viewport { position: relative; width: 100%; padding-top: 100%; overflow: hidden; background: #000; }
     .slider-track { display: flex; position: absolute; top: 0; left: 0; height: 100%; width: 100%; transition: transform 0.3s ease-out; }
-    .slider-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .slider-slide { min-width: 100%; height: 100%; }
     .slider-slide img { width: 100%; height: 100%; object-fit: cover; }
     .slider-dots { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 205; }
-    .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; transition: 0.2s; }
+    .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; }
     .dot.active { background: var(--gold); width: 16px; border-radius: 3px; }
-
+    
     .popup-details { padding: 20px; }
     .popup-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
     .popup-price { font-size: 22px; font-weight: 800; color: var(--gold); margin-bottom: 12px; }
     .popup-desc { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
-
-    /* Быстрый заказ */
-    .btn-order-trigger { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #0b0b0c; width: 100%; padding: 16px; font-size: 15px; font-weight: 700; border: none; border-radius: 16px; cursor: pointer; text-align: center; }
+    
+    .btn-order-trigger { background: linear-gradient(135deg, var(--gold) 0%, #b89344 100%); color: #0b0b0c; width: 100%; padding: 16px; font-size: 15px; font-weight: 700; border: none; border-radius: 16px; cursor: pointer; }
     .checkout-form { display: none; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); margin-top: 12px; }
     .checkout-input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px; color: var(--text-main); margin-bottom: 10px; font-size: 15px; outline: none; }
     .btn-confirm { background: #22c55e; color: white; width: 100%; padding: 15px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
-    
-    .theme-toggle { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-main); }
+    .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; }
   </style>
 </head>
 <body>
@@ -102,7 +80,7 @@
   </header>
 
   <div class="search-box">
-    <input type="text" id="search" class="search-input" placeholder="Поиск очков, сумок, одежды..." oninput="filterProducts()">
+    <input type="text" id="search" class="search-input" placeholder="Поиск товаров..." oninput="filterProducts()">
   </div>
 
   <div class="categories-scroll" id="categoriesBar">
@@ -116,25 +94,21 @@
   </div>
 
   <div class="products-grid" id="catalogContainer">
-    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">⏳ Загрузка каталога товаров...</div>
+    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">⏳ Загрузка каталога...</div>
   </div>
 
   <div id="productPopup" class="popup-overlay" onclick="closePopup(event)">
     <div class="popup-box" onclick="event.stopPropagation()">
       <button class="close-popup" onclick="document.getElementById('productPopup').style.display='none'">&times;</button>
-      
       <div class="slider-viewport">
         <div class="slider-track" id="popupSliderTrack"></div>
         <div class="slider-dots" id="popupSliderDots"></div>
       </div>
-
       <div class="popup-details">
         <div id="popupTitle" class="popup-title"></div>
         <div id="popupPrice" class="popup-price"></div>
         <div id="popupDesc" class="popup-desc"></div>
-
         <button id="orderTriggerBtn" class="btn-order-trigger" onclick="showCheckoutForm()">Быстрый заказ в 1 клик</button>
-        
         <div id="checkoutForm" class="checkout-form">
           <input type="text" id="clientName" class="checkout-input" placeholder="Ваше имя" required>
           <input type="tel" id="clientPhone" class="checkout-input" placeholder="+993 " required>
@@ -145,7 +119,6 @@
   </div>
 
   <script>
-    // Подключение к твоей базе данных Supabase
     const SUPABASE_URL = "https://wocvffbthbylgftgvyve.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvY3ZmZmJ0aGJ5bGdmdGd2eXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3ODksImV4cCI6MjAzMjQ2NDc4OX0.VkZfX2stQWxIdmxhTkNDdlJ1WGlwZFlmSUZzN2ktbkoxQ0dfSmluYV9V";
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -153,33 +126,32 @@
     let allProducts = [];
     let currentCategory = 'Все';
     let selectedProductForOrder = null;
-
-    // Слайдер (переменные для свайпа на смартфонах)
     let currentSlideIndex = 0;
     let startX = 0;
 
     async function loadCatalog() {
-      const container = document.getElementById('catalogContainer');
       try {
         const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
         if (error) throw error;
-        
         allProducts = data || [];
         renderProducts();
-      } catch (err) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Ошибка загрузки: ${err.message}</div>`;
+      } catch (err) { 
+        document.getElementById('catalogContainer').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red; padding: 20px;">Ошибка загрузки данных</div>'; 
       }
     }
 
     function renderProducts() {
       const container = document.getElementById('catalogContainer');
       container.innerHTML = '';
-
       const query = document.getElementById('search').value.toLowerCase().trim();
-      
+
       const filtered = allProducts.filter(item => {
         const matchCat = (currentCategory === 'Все' || item.category === currentCategory);
-        const matchSearch = item.title.toLowerCase().includes(query) || (item.description && item.description.toLowerCase().includes(query));
+        
+        const titleText = item.title ? item.title.toLowerCase() : '';
+        const descText = item.description ? item.description.toLowerCase() : '';
+        const matchSearch = titleText.includes(query) || descText.includes(query);
+        
         return matchCat && matchSearch;
       });
 
@@ -189,20 +161,19 @@
       }
 
       filtered.forEach(item => {
-        // Достаем самую первую картинку из строки Base64
         const imagesArray = item.image ? item.image.split(',') : [];
-        const mainImg = imagesArray[0] || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400';
+        const mainImg = imagesArray[0] ? imagesArray[0].trim() : 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400';
 
         const card = document.createElement('div');
         card.className = 'product-card';
         card.onclick = () => openProductPopup(item);
         card.innerHTML = `
           <div class="img-wrapper">
-            <img src="${mainImg}" class="card-img" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400'">
+            <img src="${mainImg}" class="card-img" alt="" onerror="this.src='https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400'">
           </div>
           <div class="card-info">
-            <div class="card-title">${item.title}</div>
-            <div class="card-price">${item.price} TMT</div>
+            <div class="card-title">${item.title || 'Без названия'}</div>
+            <div class="card-price">${item.price || 0} TMT</div>
           </div>
         `;
         container.appendChild(card);
@@ -211,39 +182,30 @@
 
     function selectCategory(catName) {
       currentCategory = catName;
-      const buttons = document.querySelectorAll('.cat-btn');
-      buttons.forEach(btn => {
-        if(btn.innerText === catName) btn.classList.add('active');
-        else btn.classList.remove('active');
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText === catName);
       });
       renderProducts();
     }
 
-    function filterProducts() {
-      renderProducts();
-    }
+    function filterProducts() { renderProducts(); }
 
-    // Логика Премиум Поп-апа и Слайдера нескольких фото
     function openProductPopup(product) {
       selectedProductForOrder = product;
-      
-      document.getElementById('popupTitle').innerText = product.title;
-      document.getElementById('popupPrice').innerText = `${product.price} TMT`;
-      document.getElementById('popupDesc').innerText = product.description || 'Описание отсутствует.';
-      
-      // Прячем форму заказа, если она была открыта ранее
+      document.getElementById('popupTitle').innerText = product.title || 'Без названия';
+      document.getElementById('popupPrice').innerText = `${product.price || 0} TMT`;
+      document.getElementById('popupDesc').innerText = product.description || '';
       document.getElementById('checkoutForm').style.display = 'none';
       document.getElementById('orderTriggerBtn').style.display = 'block';
 
-      // Настройка слайдера картинок
       const track = document.getElementById('popupSliderTrack');
       const dotsContainer = document.getElementById('popupSliderDots');
-      track.innerHTML = '';
-      dotsContainer.innerHTML = '';
+      track.innerHTML = ''; dotsContainer.innerHTML = '';
       currentSlideIndex = 0;
       track.style.transform = `translateX(0%)`;
 
-      const imagesArray = product.image ? product.image.split(',') : [];
+      let imagesArray = product.image ? product.image.split(',') : [];
+      imagesArray = imagesArray.map(img => img.trim()).filter(img => img !== '');
       
       if (imagesArray.length === 0) {
         imagesArray.push('https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400');
@@ -260,76 +222,49 @@
         dotsContainer.appendChild(dot);
       });
 
-      // Добавляем жесты (свайпы) для слайдера на телефонах
       const viewport = document.querySelector('.slider-viewport');
       viewport.ontouchstart = (e) => { startX = e.touches[0].clientX; };
       viewport.ontouchend = (e) => {
         let diffX = startX - e.changedTouches[0].clientX;
-        if (Math.abs(diffX) > 50) { // если свайп сильный
+        if (Math.abs(diffX) > 50) {
           if (diffX > 0 && currentSlideIndex < imagesArray.length - 1) currentSlideIndex++;
           if (diffX < 0 && currentSlideIndex > 0) currentSlideIndex--;
-          
           track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
-          const dots = dotsContainer.querySelectorAll('.dot');
-          dots.forEach((d, idx) => d.className = `dot ${idx === currentSlideIndex ? 'active' : ''}`);
+          dotsContainer.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === currentSlideIndex));
         }
       };
-
       document.getElementById('productPopup').style.display = 'flex';
     }
 
-    function closePopup(event) {
-      if (event.target.id === 'productPopup') document.getElementById('productPopup').style.display = 'none';
-    }
+    function closePopup(e) { if (e.target.id === 'productPopup') document.getElementById('productPopup').style.display = 'none'; }
+    function showCheckoutForm() { document.getElementById('orderTriggerBtn').style.display = 'none'; document.getElementById('checkoutForm').style.display = 'block'; }
 
-    function showCheckoutForm() {
-      document.getElementById('orderTriggerBtn').style.display = 'none';
-      document.getElementById('checkoutForm').style.display = 'block';
-    }
-
-    // Оформление заказа покупателем
     async function submitQuickOrder() {
       const name = document.getElementById('clientName').value.trim();
       const phone = document.getElementById('clientPhone').value.trim();
-
-      if (!name || !phone) { alert("Заполните имя и номер телефона!"); return; }
-      if (!selectedProductForOrder) return;
-
+      if (!name || !phone) return alert("Заполните поля!");
       try {
-        const { error } = await supabase.from('orders').insert([
-          {
-            name: name,
-            phone: phone,
-            product_title: selectedProductForOrder.title,
-            category: selectedProductForOrder.category,
-            price: selectedProductForOrder.price
-          }
-        ]);
-
+        const { error } = await supabase.from('orders').insert([{ 
+          name, 
+          phone, 
+          product_title: selectedProductForOrder.title, 
+          category: selectedProductForOrder.category, 
+          price: selectedProductForOrder.price 
+        }]);
         if (error) throw error;
-
-        alert(`🎉 Спасибо, ${name}! Ваш заказ успешно принят. Наш менеджер свяжется с вами по номеру ${phone}.`);
+        alert("🎉 Заказ принят!");
         document.getElementById('productPopup').style.display = 'none';
         document.getElementById('clientName').value = '';
         document.getElementById('clientPhone').value = '';
-      } catch (err) {
-        alert("Не удалось отправить заказ: " + err.message);
-      }
+      } catch (err) { alert("Ошибка при отправке заказа"); }
     }
 
-    // Смена темы оформления (Темная / Светлая)
     function toggleTheme() {
       document.body.classList.toggle('light-theme');
-      const isLight = document.body.classList.contains('light-theme');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
     }
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
 
-    // Инициализация темы при загрузке
-    if (localStorage.getItem('theme') === 'light') {
-      document.body.classList.add('light-theme');
-    }
-
-    // Загрузка товаров при открытии сайта
     loadCatalog();
   </script>
 </body>
