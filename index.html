@@ -2,203 +2,145 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GÖZ Store | Premium Boutique</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GÖZ Store</title>
   
-  <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="GÖZ Store">
+  <link rel="manifest" href="manifest.json">
   <link class="apple-touch-icon" rel="apple-touch-icon" href="https://i.postimg.cc/0jXyVbyq/goz-luxury-icon.png">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --bg-body: #0b0b0c;
+      --bg-main: #0b0b0c;
       --bg-card: #121214;
-      --bg-input: rgba(255, 255, 255, 0.03);
-      --border-color: rgba(255, 255, 255, 0.07);
+      --border-color: rgba(255, 255, 255, 0.06);
       --text-main: #f5f5f7;
-      --text-muted: #a1a1a6;
+      --text-muted: #8e8e93;
       --gold: #dfba6b;
       --gold-dark: #b89344;
-      --shadow: rgba(0, 0, 0, 0.5);
+      --shadow: rgba(0, 0, 0, 0.6);
     }
 
-    [data-theme="light"] {
-      --bg-body: #0f2042; 
-      --bg-card: #1a315e; 
-      --bg-input: rgba(255, 255, 255, 0.07);
-      --border-color: rgba(255, 255, 255, 0.15);
-      --text-main: #ffffff;
-      --text-muted: #cbd5e1;
-      --gold: #fcd34d; 
-      --gold-dark: #f59e0b;
-      --shadow: rgba(15, 32, 66, 0.5);
+    .light-theme {
+      --bg-main: #f5f5f7;
+      --bg-card: #ffffff;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --text-main: #1d1d1f;
+      --text-muted: #86868b;
+      --gold: #b89344;
+      --gold-dark: #8a6d30;
+      --shadow: rgba(0, 0, 0, 0.05);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
-    body { background: var(--bg-body); color: var(--text-main); padding-bottom: 60px; -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; }
-    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-main); color: var(--text-main); transition: background 0.3s, color 0.3s; padding-bottom: 50px; overflow-x: hidden; }
+
     header { 
-      background: rgba(18, 18, 19, 0.85); 
-      backdrop-filter: blur(25px); 
-      -webkit-backdrop-filter: blur(25px); 
-      color: var(--gold); 
-      padding: 15px 20px; 
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky; 
-      top: 0; 
-      z-index: 100; 
-      border-bottom: 1px solid rgba(223, 186, 107, 0.15);
+      background: rgba(18, 18, 20, 0.8); 
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      position: sticky; top: 0; z-index: 100;
+      padding: 15px 20px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
     }
-    
-    .brand-title { font-size: 20px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 2px 10px rgba(223, 186, 107, 0.2); cursor: pointer; }
-    .nav-icons { display: flex; align-items: center; gap: 15px; }
-    .icon-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; transition: background 0.2s; }
-    .badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; }
+    .light-theme header { background: rgba(255, 255, 255, 0.8); }
+    .logo { font-size: 20px; font-weight: 900; letter-spacing: 4px; color: var(--gold); text-decoration: none; }
 
-    /* Меню выбора коллекций */
-    .burger-menu { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #121214; z-index: 250; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 5px 0 30px rgba(0,0,0,0.7); border-right: 1px solid rgba(223, 186, 107, 0.15); padding: 30px 20px; display: flex; flex-direction: column; }
-    .burger-menu.open { transform: translateX(0); }
-    .burger-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 240; display: none; }
-    .menu-title { font-size: 12px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
-    .menu-close { align-self: flex-end; font-size: 24px; color: #86868b; background: none; border: none; cursor: pointer; margin-bottom: 10px; }
-    .cat-list { display: flex; flex-direction: column; gap: 8px; }
-    .cat-item { background: rgba(255, 255, 255, 0.02); color: #f5f5f7; border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 18px; border-radius: 12px; text-align: left; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .cat-item.active { background: var(--gold); color: #0b0b0c; border-color: var(--gold); }
-    
-    .lang-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
-    .lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-    .lang-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .lang-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(223, 186, 107, 0.1); }
+    /* Поиск и Фильтры каталогов */
+    .search-box { padding: 12px 16px; }
+    .search-input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 14px; color: var(--text-main); font-size: 15px; outline: none; }
 
-    /* Блок поиска */
-    .search-container { max-width: 600px; margin: 15px auto 5px auto; padding: 0 16px; }
-    .search-bar { width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 14px 16px; border-radius: 14px; font-size: 15px; outline: none; }
-    .search-bar:focus { border-color: var(--gold); }
+    .categories-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 5px 16px 15px 16px; scrollbar-width: none; }
+    .categories-scroll::-webkit-scrollbar { display: none; }
+    .cat-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 9px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; }
+    .cat-btn.active { background: var(--gold); color: #0b0b0c; border-color: var(--gold); }
 
-    /* Ограниченная сетка */
-    .container { max-width: 600px; margin: 0 auto; padding: 8px; }
-    .loading, .empty { text-align: center; padding: 80px 20px; color: var(--text-muted); font-size: 16px; font-weight: 500; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .card { background: var(--bg-card); border-radius: 22px; padding: 14px; box-shadow: 0 10px 30px var(--shadow); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+    /* Сетка товаров (Каталог) */
+    .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; }
+    .product-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px var(--shadow); position: relative; display: flex; flex-direction: column; }
+    .img-wrapper { position: relative; width: 100%; padding-top: 100%; background: #1c1c1e; }
+    .card-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     
-    .like-btn { position: absolute; top: 22px; right: 22px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 16px; color: #a1a1a6; }
-    .like-btn.liked { color: #ef4444; }
+    .card-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 4px; }
+    .card-price { color: var(--gold); font-size: 15px; font-weight: 700; }
 
-    .card-img-wrap { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 16px; background: #1c1c1e; cursor: pointer; }
-    .card img { width: 100%; height: 100%; object-fit: cover; }
-    .card-info { padding: 12px 4px 2px 4px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; cursor: pointer; }
-    .card-title { font-size: 15px; font-weight: 600; color: var(--text-main); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 42px; }
-    .card-price { color: var(--gold); font-weight: 700; font-size: 17px; margin-bottom: 14px; letter-spacing: 0.5px; }
-    .order-btn { background: rgba(255, 255, 255, 0.06); color: var(--text-main); border: 1px solid var(--border-color); width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    /* Премиальное всплывающее окно товара */
+    .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
+    .popup-box { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; max-height: 90vh; overflow-y: auto; padding-bottom: 40px; border-top: 1px solid rgba(223, 186, 107, 0.2); position: relative; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .close-popup { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.5); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer; z-index: 210; }
 
-    /* Окно карточки товара */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
-    .modal-box { background: var(--bg-card); border-radius: 30px 30px 0 0; width: 100%; max-width: 550px; padding: 30px 24px 24px 24px; max-height: 90vh; overflow-y: auto; position: relative; border-top: 1px solid rgba(223, 186, 107, 0.2); }
-    .close-modal { position: absolute; top: 20px; right: 20px; font-size: 22px; color: var(--text-muted); cursor: pointer; border: none; background: rgba(255, 255, 255, 0.05); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; }
-    
-    /* Слайдер картинок Base64 */
-    .slider-container { width: 100%; position: relative; overflow: hidden; border-radius: 20px; background: #1c1c1e; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 10px; }
-    .slider-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-    .slider-track::-webkit-scrollbar { display: none; }
-    .slider-slide { min-width: 100%; aspect-ratio: 4 / 3; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-    .slider-slide img { max-width: 100%; max-height: 100%; object-fit: contain; }
-    .slider-dots { display: flex; justify-content: center; gap: 6px; margin: 8px 0 15px 0; }
-    .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 50%; transition: background 0.2s; }
-    .dot.active { background: var(--gold); width: 18px; border-radius: 3px; }
+    /* Слайдер картинок в поп-апе */
+    .slider-viewport { position: relative; width: 100%; padding-top: 100%; overflow: hidden; background: #000; }
+    .slider-track { display: flex; position: absolute; top: 0; left: 0; height: 100%; width: 100%; transition: transform 0.3s ease-out; }
+    .slider-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .slider-slide img { width: 100%; height: 100%; object-fit: cover; }
+    .slider-dots { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 205; }
+    .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; transition: 0.2s; }
+    .dot.active { background: var(--gold); width: 16px; border-radius: 3px; }
 
-    .modal-title { font-size: 22px; font-weight: 700; color: #fff; margin: 10px 0 8px 0; line-height: 1.3; }
-    .modal-price { font-size: 26px; color: var(--gold); font-weight: 800; margin-bottom: 15px; letter-spacing: 0.5px; }
-    .modal-desc-title { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .modal-desc { font-size: 14px; color: var(--text-main); line-height: 1.5; margin-bottom: 20px; padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); }
+    .popup-details { padding: 20px; }
+    .popup-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .popup-price { font-size: 22px; font-weight: 800; color: var(--gold); margin-bottom: 12px; }
+    .popup-desc { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+
+    /* Быстрый заказ */
+    .btn-order-trigger { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #0b0b0c; width: 100%; padding: 16px; font-size: 15px; font-weight: 700; border: none; border-radius: 16px; cursor: pointer; text-align: center; }
+    .checkout-form { display: none; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); margin-top: 12px; }
+    .checkout-input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px; color: var(--text-main); margin-bottom: 10px; font-size: 15px; outline: none; }
+    .btn-confirm { background: #22c55e; color: white; width: 100%; padding: 15px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
     
-    .order-checkout-fields { display: none; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; margin-top: 15px; }
-    .order-checkout-fields.show { display: block; opacity: 1; transform: translateY(0); }
-    .input-field { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; color: #fff; font-size: 16px; margin-bottom: 14px; }
-    .input-field:focus { border-color: var(--gold); outline: none; }
-    
-    .modal-box .action-btn { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #0b0b0c; width: 100%; padding: 18px; font-size: 16px; font-weight: 700; border: none; border-radius: 16px; box-shadow: 0 6px 25px rgba(223, 186, 107, 0.25); cursor: pointer; }
-    .action-btn:disabled { background: #333; color: #666; box-shadow: none; }
+    .theme-toggle { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-main); }
   </style>
 </head>
 <body>
 
-  <div id="burgerOverlay" class="burger-overlay" onclick="toggleMenu(false)"></div>
-  <div id="burgerMenu" class="burger-menu">
-    <button class="menu-close" onclick="toggleMenu(false)">&times;</button>
-    <div class="menu-title" id="lblCategories">Коллекции</div>
-    
-    <div class="cat-list">
-      <button class="cat-item active" onclick="filterCategory('Все')" id="btnAllCats">Все коллекции</button>
-      <button class="cat-item" onclick="filterCategory('Очки')">Очки</button>
-      <button class="cat-item" onclick="filterCategory('Очки для зрения')">Очки для зрения</button>
-      <button class="cat-item" onclick="filterCategory('Женская одежда')">Женская одежда</button>
-      <button class="cat-item" onclick="filterCategory('Туфли')">Туфли</button>
-      <button class="cat-item" onclick="filterCategory('Сумочки')">Сумочки</button>
-      <button class="cat-item" onclick="filterCategory('Ремонт очков')">Ремонт очков</button>
-    </div>
-
-    <div class="lang-section">
-      <div class="menu-title">Language / Dil</div>
-      <div class="lang-grid">
-        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
-        <button class="lang-btn" onclick="setLanguage('tm')">TM</button>
-        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
-      </div>
-    </div>
-  </div>
-
   <header>
-    <button class="icon-btn" onclick="toggleMenu(true)">☰</button>
-    <div class="brand-title" onclick="resetFilters()">GÖZ STORE</div>
-    <div class="nav-icons">
-      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌓</button>
-      <button class="icon-btn" onclick="toggleFavoritesMode()" id="favNavBtn">
-        <span id="favIcon">♡</span>
-        <span id="favCount" class="badge" style="display: none;">0</span>
-      </button>
-    </div>
+    <a href="#" class="logo">GÖZ STORE</a>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
   </header>
 
-  <div class="search-container">
-    <input type="text" id="searchBar" class="search-bar" placeholder="Поиск эксклюзивных моделей..." oninput="handleSearch()">
+  <div class="search-box">
+    <input type="text" id="search" class="search-input" placeholder="Поиск очков, сумок, одежды..." oninput="filterProducts()">
   </div>
 
-  <div class="container">
-    <div id="loading" class="loading">⏳ Загрузка лимитированной коллекции GÖZ...</div>
-    <div id="catalog" class="grid" style="display: none;"></div>
-    <div id="empty" class="empty" style="display: none;">В этой категории пока нет новинок</div>
+  <div class="categories-scroll" id="categoriesBar">
+    <button class="cat-btn active" onclick="selectCategory('Все')">Все</button>
+    <button class="cat-btn" onclick="selectCategory('Очки')">Очки</button>
+    <button class="cat-btn" onclick="selectCategory('Очки для зрения')">Очки для зрения</button>
+    <button class="cat-btn" onclick="selectCategory('Женская одежда')">Женская одежда</button>
+    <button class="cat-btn" onclick="selectCategory('Туфли')">Туфли</button>
+    <button class="cat-btn" onclick="selectCategory('Сумочки')">Сумочки</button>
+    <button class="cat-btn" onclick="selectCategory('Ремонт очков')">Ремонт очков</button>
   </div>
 
-  <div id="productModal" class="modal-overlay" onclick="closeProductModal(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <button class="close-modal" onclick="document.getElementById('productModal').style.display='none'">&times;</button>
+  <div class="products-grid" id="catalogContainer">
+    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">⏳ Загрузка каталога товаров...</div>
+  </div>
+
+  <div id="productPopup" class="popup-overlay" onclick="closePopup(event)">
+    <div class="popup-box" onclick="event.stopPropagation()">
+      <button class="close-popup" onclick="document.getElementById('productPopup').style.display='none'">&times;</button>
       
-      <div class="slider-container" id="sliderContainer">
-        <div class="slider-track" id="sliderTrack" onscroll="updateSliderDots()"></div>
-      </div>
-      <div class="slider-dots" id="sliderDots"></div>
-      
-      <div id="modalTitle" class="modal-title"></div>
-      <div id="modalPrice" class="modal-price"></div>
-      
-      <div id="detailsBlock">
-        <div class="modal-desc-title" id="lblDetails">Эксклюзивные детали</div>
-        <div id="modalDesc" class="modal-desc"></div>
-      </div>
-      
-      <div id="checkoutFields" class="order-checkout-fields">
-        <div class="modal-desc-title" id="lblCheckoutTitle">Контактные данные для заказа</div>
-        <input type="text" id="clientName" class="input-field" placeholder="Ваше имя" required>
-        <input type="tel" id="clientPhone" class="input-field" placeholder="Номер телефона (+993...)" required>
+      <div class="slider-viewport">
+        <div class="slider-track" id="popupSliderTrack"></div>
+        <div class="slider-dots" id="popupSliderDots"></div>
       </div>
 
-      <button id="mainActionBtn" class="action-btn" onclick="handleMainButtonClick()">Быстрый заказ в 1 клик</button>
+      <div class="popup-details">
+        <div id="popupTitle" class="popup-title"></div>
+        <div id="popupPrice" class="popup-price"></div>
+        <div id="popupDesc" class="popup-desc"></div>
+
+        <button id="orderTriggerBtn" class="btn-order-trigger" onclick="showCheckoutForm()">Быстрый заказ в 1 клик</button>
+        
+        <div id="checkoutForm" class="checkout-form">
+          <input type="text" id="clientName" class="checkout-input" placeholder="Ваше имя" required>
+          <input type="tel" id="clientPhone" class="checkout-input" placeholder="+993 " required>
+          <button class="btn-confirm" onclick="submitQuickOrder()">Подтвердить заказ</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -210,307 +152,185 @@
 
     let allProducts = [];
     let currentCategory = 'Все';
-    let selectedItem = null;
-    let isCheckoutStage = false;
-    let currentLanguage = 'ru';
-    let favorites = JSON.parse(localStorage.getItem('goz_favorites')) || [];
-    let isFavoritesMode = false;
+    let selectedProductForOrder = null;
 
-    const translations = {
-      ru: {
-        loading: "⏳ Загрузка лимитированной коллекции GÖZ...",
-        error: "Не удалось загрузить коллекцию. Проверьте интернет.",
-        empty: "В этой категории пока нет новинок",
-        searchPlaceholder: "Поиск эксклюзивных моделей...",
-        allCats: "Все коллекции",
-        categoriesTitle: "Коллекции",
-        viewBtn: "Посмотреть",
-        details: "Эксклюзивные детали",
-        checkoutTitle: "Контактные данные для заказа",
-        namePlaceholder: "Ваше имя",
-        phonePlaceholder: "Номер телефона (+993...)",
-        orderBtn1: "Быстрый заказ в 1 клик",
-        orderBtn2: "Подтвердить заказ",
-        sending: "⏳ Оформление заказа...",
-        success: "✅ Успешно заказано!",
-        alertFields: "Пожалуйста, заполните поля «Ваше имя» и «Номер телефона».",
-        alertError: "Произошла ошибка при отправке. Попробуйте еще раз.",
-        favEmpty: "В списке избранного пока пусто ♡"
-      },
-      tm: {
-        loading: "⏳ GÖZ ekskluziw kolleksiýasy ýüklenýär...",
-        error: "Kolleksiýany ýükläp bolmady. Internedi barlap görün.",
-        empty: "Bu kategoriýada entek täzelik ýok",
-        searchPlaceholder: "Ekskluziw modelleri gözle...",
-        allCats: "Ähli kolleksiýalar",
-        categoriesTitle: "Kolleksiýalar",
-        viewBtn: "Görmek",
-        details: "Ekskluziw detallar",
-        checkoutTitle: "Sargyt üçün kontakt maglumatlary",
-        namePlaceholder: "Adyňyz",
-        phonePlaceholder: "Telefon belgiňiz (+993...)",
-        orderBtn1: "1 basymda sargyt etmek",
-        orderBtn2: "Sargydy tassyklamak",
-        sending: "⏳ Sargyt resmileşdirilýär...",
-        success: "✅ Sargyt edildi!",
-        alertFields: "Hahyş, «Adyňyz» we «Telefon belgiňiz» meýdançalaryny dolduryň.",
-        alertError: "Ugratmakda säwlik ýüze çykdy. Täzeden synanyşyň.",
-        favEmpty: "Halanýanlar sanawyňyz entek boş ♡"
-      },
-      en: {
-        loading: "⏳ Loading GÖZ limited collection...",
-        error: "Failed to load collection. Check connection.",
-        empty: "No new arrivals in this category yet",
-        searchPlaceholder: "Search exclusive models...",
-        allCats: "All Collections",
-        categoriesTitle: "Collections",
-        viewBtn: "View Details",
-        details: "Exclusive Details",
-        checkoutTitle: "Contact Information for Order",
-        namePlaceholder: "Your Name",
-        phonePlaceholder: "Phone Number (+993...)",
-        orderBtn1: "Quick 1-Click Order",
-        orderBtn2: "Confirm Order",
-        sending: "⏳ Processing your order...",
-        success: "✅ Order Placed Successfully!",
-        alertFields: "Please fill out 'Your Name' and 'Phone Number' fields.",
-        alertError: "An error occurred. Please try again.",
-        favEmpty: "Your wishlist is empty ♡"
-      }
-    };
+    // Слайдер (переменные для свайпа на смартфонах)
+    let currentSlideIndex = 0;
+    let startX = 0;
 
-    async function loadProducts() {
+    async function loadCatalog() {
+      const container = document.getElementById('catalogContainer');
       try {
         const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
         if (error) throw error;
+        
         allProducts = data || [];
-        updateFavoritesBadge();
-        renderCatalog();
+        renderProducts();
       } catch (err) {
-        document.getElementById('loading').innerText = translations[currentLanguage].error;
-        console.error("Supabase load error:", err);
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 20px;">Ошибка загрузки: ${err.message}</div>`;
       }
     }
 
-    function toggleMenu(show) {
-      document.getElementById('burgerMenu').classList.toggle('open', show);
-      document.getElementById('burgerOverlay').style.display = show ? 'block' : 'none';
-    }
+    function renderProducts() {
+      const container = document.getElementById('catalogContainer');
+      container.innerHTML = '';
 
-    function filterCategory(catName) {
-      currentCategory = catName;
-      isFavoritesMode = false;
-      document.getElementById('favIcon').innerText = '♡';
-      document.querySelectorAll('.cat-item').forEach(btn => {
-        const isAll = catName === 'Все' && btn.id === 'btnAllCats';
-        btn.classList.toggle('active', isAll || btn.innerText === catName);
+      const query = document.getElementById('search').value.toLowerCase().trim();
+      
+      const filtered = allProducts.filter(item => {
+        const matchCat = (currentCategory === 'Все' || item.category === currentCategory);
+        const matchSearch = item.title.toLowerCase().includes(query) || (item.description && item.description.toLowerCase().includes(query));
+        return matchCat && matchSearch;
       });
-      toggleMenu(false);
-      renderCatalog();
-    }
-
-    function resetFilters() {
-      document.getElementById('searchBar').value = '';
-      filterCategory('Все');
-    }
-
-    function toggleFavorite(id, event) {
-      event.stopPropagation();
-      const index = favorites.indexOf(id);
-      if (index === -1) { favorites.push(id); } else { favorites.splice(index, 1); }
-      localStorage.setItem('goz_favorites', JSON.stringify(favorites));
-      updateFavoritesBadge();
-      renderCatalog();
-    }
-
-    function updateFavoritesBadge() {
-      const count = favorites.length;
-      const badge = document.getElementById('favCount');
-      if (count > 0) { badge.innerText = count; badge.style.display = 'block'; } else { badge.style.display = 'none'; }
-    }
-
-    function toggleFavoritesMode() {
-      isFavoritesMode = !isFavoritesMode;
-      document.getElementById('favIcon').innerText = isFavoritesMode ? '♥' : '♡';
-      renderCatalog();
-    }
-
-    function handleSearch() { renderCatalog(); }
-    
-    function toggleTheme() {
-      if (document.body.getAttribute('data-theme') === 'light') { document.body.removeAttribute('data-theme'); } 
-      else { document.body.setAttribute('data-theme', 'light'); }
-    }
-
-    function setLanguage(lang) {
-      currentLanguage = lang;
-      document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.innerText.toLowerCase() === lang); });
-      document.getElementById('searchBar').placeholder = translations[lang].searchPlaceholder;
-      document.getElementById('lblCategories').innerText = translations[lang].categoriesTitle;
-      document.getElementById('btnAllCats').innerText = translations[lang].allCats;
-      document.getElementById('loading').innerText = translations[lang].loading;
-      document.getElementById('lblDetails').innerText = translations[lang].details;
-      document.getElementById('lblCheckoutTitle').innerText = translations[lang].checkoutTitle;
-      document.getElementById('clientName').placeholder = translations[lang].namePlaceholder;
-      document.getElementById('clientPhone').placeholder = translations[lang].phonePlaceholder;
-      document.getElementById('mainActionBtn').innerText = isCheckoutStage ? translations[lang].orderBtn2 : translations[lang].orderBtn1;
-      renderCatalog();
-    }
-
-    function openProductModal(idxInFiltered) {
-      const itemElement = document.getElementById(`prod-${idxInFiltered}`);
-      if (!itemElement) return;
-      
-      const item = JSON.parse(itemElement.getAttribute('data-product'));
-      selectedItem = item;
-      isCheckoutStage = false;
-
-      const imagesArr = item.image.split(',').filter(url => url.trim() !== '');
-      
-      const track = document.getElementById('sliderTrack');
-      const dotsContainer = document.getElementById('sliderDots');
-      track.innerHTML = '';
-      dotsContainer.innerHTML = '';
-
-      imagesArr.forEach((imgUrl, idx) => {
-        const slide = document.createElement('div');
-        slide.className = 'slider-slide';
-        slide.innerHTML = `<img src="${imgUrl}" alt="">`;
-        track.appendChild(slide);
-
-        if (imagesArr.length > 1) {
-          const dot = document.createElement('div');
-          dot.className = `dot ${idx === 0 ? 'active' : ''}`;
-          dotsContainer.appendChild(dot);
-        }
-      });
-
-      track.scrollLeft = 0;
-
-      document.getElementById('modalTitle').innerText = item.title;
-      document.getElementById('modalPrice').innerText = `${item.price} TMT`;
-      document.getElementById('modalDesc').innerText = item.description || 'Premium Quality Product.';
-      
-      document.getElementById('detailsBlock').style.display = 'block';
-      document.getElementById('checkoutFields').classList.remove('show');
-      
-      const btn = document.getElementById('mainActionBtn');
-      btn.innerText = translations[currentLanguage].orderBtn1;
-      btn.disabled = false;
-      
-      document.getElementById('productModal').style.display = 'flex';
-    }
-
-    function updateSliderDots() {
-      const track = document.getElementById('sliderTrack');
-      const dots = document.querySelectorAll('.slider-dots .dot');
-      if(dots.length === 0) return;
-      
-      const index = Math.round(track.scrollLeft / track.clientWidth);
-      dots.forEach((dot, idx) => { dot.classList.toggle('active', idx === index); });
-    }
-
-    function closeProductModal(event) {
-      if(event.target.id === 'productModal') { document.getElementById('productModal').style.display = 'none'; }
-    }
-
-    function handleMainButtonClick() {
-      if (!isCheckoutStage) {
-        document.getElementById('detailsBlock').style.display = 'none';
-        document.getElementById('checkoutFields').classList.add('show');
-        document.getElementById('clientName').value = '';
-        document.getElementById('clientPhone').value = '';
-        document.getElementById('mainActionBtn').innerText = translations[currentLanguage].orderBtn2;
-        isCheckoutStage = true;
-      } else {
-        submitOrderDirectly();
-      }
-    }
-
-    async function submitOrderDirectly() {
-      const name = document.getElementById('clientName').value.trim();
-      const phone = document.getElementById('clientPhone').value.trim();
-      const btn = document.getElementById('mainActionBtn');
-
-      if (!name || !phone) { alert(translations[currentLanguage].alertFields); return; }
-
-      btn.innerText = translations[currentLanguage].sending;
-      btn.disabled = true;
-
-      const { data, error } = await supabase.from('orders').insert([
-        { 
-          name: name, 
-          phone: phone, 
-          product_title: selectedItem.title, 
-          category: selectedItem.category, 
-          price: selectedItem.price.toString() 
-        }
-      ]);
-
-      if (error) {
-        console.error("Supabase Order Error:", error);
-        alert(translations[currentLanguage].alertError);
-        btn.innerText = translations[currentLanguage].orderBtn2;
-        btn.disabled = false;
-      } else {
-        btn.style.background = '#00b67a';
-        btn.innerText = translations[currentLanguage].success;
-        setTimeout(() => { document.getElementById('productModal').style.display = 'none'; btn.style.background = ''; }, 1500);
-      }
-    }
-
-    function renderCatalog() {
-      const catalogDiv = document.getElementById('catalog');
-      const emptyDiv = document.getElementById('empty');
-      document.getElementById('loading').style.display = 'none';
-      catalogDiv.innerHTML = '';
-
-      const searchQuery = document.getElementById('searchBar').value.toLowerCase().trim();
-      let filtered = allProducts;
-
-      if (isFavoritesMode) { filtered = filtered.filter(p => favorites.includes(p.id || p.title)); } 
-      else if (currentCategory !== 'Все') { filtered = filtered.filter(p => p.category === currentCategory); }
-
-      if (searchQuery) {
-        filtered = filtered.filter(p => p.title.toLowerCase().includes(searchQuery) || (p.description && p.description.toLowerCase().includes(searchQuery)));
-      }
 
       if (filtered.length === 0) {
-        catalogDiv.style.display = 'none';
-        emptyDiv.style.display = 'block';
-        emptyDiv.innerText = isFavoritesMode ? translations[currentLanguage].favEmpty : translations[currentLanguage].empty;
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Товары не найдены</div>`;
         return;
       }
 
-      emptyDiv.style.display = 'none'; catalogDiv.style.display = 'grid';
+      filtered.forEach(item => {
+        // Достаем самую первую картинку из строки Base64
+        const imagesArray = item.image ? item.image.split(',') : [];
+        const mainImg = imagesArray[0] || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400';
 
-      filtered.forEach((item, index) => {
-        const itemId = item.id || item.title;
-        const isLiked = favorites.includes(itemId);
-        const firstImgUrl = item.image.split(',')[0];
-        
         const card = document.createElement('div');
-        card.className = 'card'; card.id = `prod-${index}`;
-        card.setAttribute('data-product', JSON.stringify(item));
-        
+        card.className = 'product-card';
+        card.onclick = () => openProductPopup(item);
         card.innerHTML = `
-          <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleFavorite('${itemId}', event)">${isLiked ? '♥' : '♡'}</button>
-          <div class="card-img-wrap" onclick="openProductModal(${index})">
-            <img src="${firstImgUrl}" alt="" loading="lazy">
+          <div class="img-wrapper">
+            <img src="${mainImg}" class="card-img" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400'">
           </div>
-          <div class="card-info" onclick="openProductModal(${index})">
+          <div class="card-info">
             <div class="card-title">${item.title}</div>
-            <div>
-              <div class="card-price">${item.price} TMT</div>
-              <button class="order-btn">${translations[currentLanguage].viewBtn}</button>
-            </div>
+            <div class="card-price">${item.price} TMT</div>
           </div>
         `;
-        catalogDiv.appendChild(card);
+        container.appendChild(card);
       });
     }
 
-    loadProducts();
+    function selectCategory(catName) {
+      currentCategory = catName;
+      const buttons = document.querySelectorAll('.cat-btn');
+      buttons.forEach(btn => {
+        if(btn.innerText === catName) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      renderProducts();
+    }
+
+    function filterProducts() {
+      renderProducts();
+    }
+
+    // Логика Премиум Поп-апа и Слайдера нескольких фото
+    function openProductPopup(product) {
+      selectedProductForOrder = product;
+      
+      document.getElementById('popupTitle').innerText = product.title;
+      document.getElementById('popupPrice').innerText = `${product.price} TMT`;
+      document.getElementById('popupDesc').innerText = product.description || 'Описание отсутствует.';
+      
+      // Прячем форму заказа, если она была открыта ранее
+      document.getElementById('checkoutForm').style.display = 'none';
+      document.getElementById('orderTriggerBtn').style.display = 'block';
+
+      // Настройка слайдера картинок
+      const track = document.getElementById('popupSliderTrack');
+      const dotsContainer = document.getElementById('popupSliderDots');
+      track.innerHTML = '';
+      dotsContainer.innerHTML = '';
+      currentSlideIndex = 0;
+      track.style.transform = `translateX(0%)`;
+
+      const imagesArray = product.image ? product.image.split(',') : [];
+      
+      if (imagesArray.length === 0) {
+        imagesArray.push('https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400');
+      }
+
+      imagesArray.forEach((imgSrc, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'slider-slide';
+        slide.innerHTML = `<img src="${imgSrc}" onerror="this.src='https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400'">`;
+        track.appendChild(slide);
+
+        const dot = document.createElement('div');
+        dot.className = `dot ${index === 0 ? 'active' : ''}`;
+        dotsContainer.appendChild(dot);
+      });
+
+      // Добавляем жесты (свайпы) для слайдера на телефонах
+      const viewport = document.querySelector('.slider-viewport');
+      viewport.ontouchstart = (e) => { startX = e.touches[0].clientX; };
+      viewport.ontouchend = (e) => {
+        let diffX = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diffX) > 50) { // если свайп сильный
+          if (diffX > 0 && currentSlideIndex < imagesArray.length - 1) currentSlideIndex++;
+          if (diffX < 0 && currentSlideIndex > 0) currentSlideIndex--;
+          
+          track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+          const dots = dotsContainer.querySelectorAll('.dot');
+          dots.forEach((d, idx) => d.className = `dot ${idx === currentSlideIndex ? 'active' : ''}`);
+        }
+      };
+
+      document.getElementById('productPopup').style.display = 'flex';
+    }
+
+    function closePopup(event) {
+      if (event.target.id === 'productPopup') document.getElementById('productPopup').style.display = 'none';
+    }
+
+    function showCheckoutForm() {
+      document.getElementById('orderTriggerBtn').style.display = 'none';
+      document.getElementById('checkoutForm').style.display = 'block';
+    }
+
+    // Оформление заказа покупателем
+    async function submitQuickOrder() {
+      const name = document.getElementById('clientName').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+
+      if (!name || !phone) { alert("Заполните имя и номер телефона!"); return; }
+      if (!selectedProductForOrder) return;
+
+      try {
+        const { error } = await supabase.from('orders').insert([
+          {
+            name: name,
+            phone: phone,
+            product_title: selectedProductForOrder.title,
+            category: selectedProductForOrder.category,
+            price: selectedProductForOrder.price
+          }
+        ]);
+
+        if (error) throw error;
+
+        alert(`🎉 Спасибо, ${name}! Ваш заказ успешно принят. Наш менеджер свяжется с вами по номеру ${phone}.`);
+        document.getElementById('productPopup').style.display = 'none';
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientPhone').value = '';
+      } catch (err) {
+        alert("Не удалось отправить заказ: " + err.message);
+      }
+    }
+
+    // Смена темы оформления (Темная / Светлая)
+    function toggleTheme() {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    // Инициализация темы при загрузке
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-theme');
+    }
+
+    // Загрузка товаров при открытии сайта
+    loadCatalog();
   </script>
 </body>
 </html>
