@@ -67,13 +67,14 @@
     .input-field, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px; color: #fff; font-size: 15px; outline: none; }
     .input-field:focus, select:focus { border-color: var(--gold); }
     
-    .file-label { display: block; background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; color: var(--text-muted); font-size: 14px; }
+    .file-label { display: block; background: rgba(223, 186, 107, 0.05); border: 1px dashed var(--gold); border-radius: 12px; padding: 25px 20px; text-align: center; cursor: pointer; color: var(--gold); font-size: 15px; font-weight: 600; transition: background 0.2s; }
+    .file-label:active { background: rgba(223, 186, 107, 0.15); }
     #productImage { display: none; }
-    .preview-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    .preview-img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+    .preview-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .preview-img { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border-color); }
 
-    .btn-submit { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #0b0b0c; width: 100%; padding: 16px; font-size: 15px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; }
-    .btn-submit:disabled { background: #333; color: #666; }
+    .btn-submit { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #0b0b0c; width: 100%; padding: 16px; font-size: 15px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(223,186,107,0.2); }
+    .btn-submit:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
 
     .product-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
     .product-list-item:last-child { border-bottom: none; }
@@ -82,9 +83,9 @@
     .prod-details { font-size: 14px; }
     .prod-title { font-weight: 600; color: #fff; }
     .prod-price { color: var(--gold); font-size: 13px; font-weight: 700; margin-top: 2px; }
-    .btn-delete { background: none; border: none; color: #ef4444; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-delete { background: none; border: none; color: #ef4444; font-size: 14px; font-weight: 600; cursor: pointer; padding: 5px; }
 
-    /* Журнал заказов */
+    /* Модалка заказов */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: none; justify-content: center; align-items: center; z-index: 200; }
     .modal-box { background: var(--bg-card); border-radius: 24px; width: 95%; max-width: 550px; padding: 24px; max-height: 85vh; overflow-y: auto; border: 1px solid rgba(223, 186, 107, 0.15); position: relative; }
     .close-modal { position: absolute; top: 18px; right: 18px; font-size: 24px; color: var(--text-muted); cursor: pointer; background: none; border: none; }
@@ -140,8 +141,8 @@
 
         <div class="form-group">
           <label>Фотографии товара</label>
-          <div class="file-input-wrapper">
-            <label for="productImage" class="file-label" id="fileLabel">📁 Выбрать фото из галереи</label>
+          <div>
+            <label for="productImage" class="file-label" id="fileLabel">📸 НАЖМИ СЮДА И ВЫБЕРИ ФОТО</label>
             <input type="file" id="productImage" accept="image/*" multiple onchange="handleFileSelect(event)">
           </div>
           <div id="previewContainer" class="preview-container"></div>
@@ -153,7 +154,7 @@
 
     <div class="admin-section">
       <div class="section-title">Текущая витрина сайта</div>
-      <div id="productsAdminList">⏳ Загрузка товаров...</div>
+      <div id="productsAdminList">⏳ Загрузка витрины...</div>
     </div>
 
   </div>
@@ -169,31 +170,42 @@
   </div>
 
   <script>
-    // Подключение к твоей базе данных Supabase в панели администратора
+    // Подключение к твоей базе данных Supabase
     const SUPABASE_URL = "https://wocvffbthbylgftgvyve.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvY3ZmZmJ0aGJ5bGdmdGd2eXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg3ODksImV4cCI6MjAzMjQ2NDc4OX0.VkZfX2stQWxIdmxhTkNDdlJ1WGlwZFlmSUZzN2ktbkoxQ0dfSmluYV9V";
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let base64Images = [];
 
+    // Безопасное чтение файлов и превращение в Base64 с обработкой ошибок смартфона
     function handleFileSelect(event) {
       const files = event.target.files;
       const previewContainer = document.getElementById('previewContainer');
-      previewContainer.innerHTML = ''; base64Images = [];
+      previewContainer.innerHTML = ''; 
+      base64Images = [];
 
-      if(files.length === 0) {
-        document.getElementById('fileLabel').innerText = "📁 Выбрать фото из галереи"; return;
+      if (!files || files.length === 0) {
+        document.getElementById('fileLabel').innerText = "📸 НАЖМИ СЮДА И ВЫБЕРИ ФОТО";
+        return;
       }
+      
       document.getElementById('fileLabel').innerText = `✅ Выбрано фото: ${files.length}`;
 
       Array.from(files).forEach(file => {
         const reader = new FileReader();
         reader.onload = function(e) {
-          base64Images.push(e.target.result);
+          const base64Result = e.target.result;
+          base64Images.push(base64Result);
+          
+          // Создаем маленькое превью на экране
           const img = document.createElement('img');
-          img.src = e.target.result; img.className = 'preview-img';
+          img.src = base64Result; 
+          img.className = 'preview-img';
           previewContainer.appendChild(img);
-        }
+        };
+        reader.onerror = function() {
+          alert("Не удалось прочитать файл изображения со смартфона. Попробуйте выбрать другое фото.");
+        };
         reader.readAsDataURL(file);
       });
     }
@@ -201,99 +213,131 @@
     async function handleFormSubmit(event) {
       event.preventDefault();
       const btn = document.getElementById('submitBtn');
-      if(base64Images.length === 0) { alert("Добавьте хотя бы одно фото."); return; }
+      
+      if (base64Images.length === 0) { 
+        alert("Пожалуйста, нажмите на кнопку загрузки и выберите хотя бы одно фото."); 
+        return; 
+      }
 
-      btn.innerText = "⏳ Публикация..."; btn.disabled = true;
+      btn.innerText = "⏳ Идет публикация товара..."; 
+      btn.disabled = true;
 
       const title = document.getElementById('title').value.trim();
       const category = document.getElementById('category').value;
       const price = document.getElementById('price').value;
       const description = document.getElementById('description').value.trim();
+      
+      // Объединяем все картинки через запятую
       const imageUrlsString = base64Images.join(',');
 
-      const { error } = await supabase.from('products').insert([
-        { title, category, price, description, image: imageUrlsString }
-      ]);
+      try {
+        const { error } = await supabase.from('products').insert([
+          { title, category, price, description, image: imageUrlsString }
+        ]);
 
-      if (error) {
-        alert("Ошибка: " + error.message);
-      } else {
-        alert("🎉 Товар успешно опубликован в магазине!");
+        if (error) throw error;
+
+        alert("🎉 Товар успешно опубликован на витрине магазина!");
         document.getElementById('productForm').reset();
-        document.getElementById('previewContainer').innerHTML = '';
-        document.getElementById('fileLabel').innerText = "📁 Выбрать фото из галереи";
-        base64Images = []; loadProducts();
+        previewContainer.innerHTML = '';
+        document.getElementById('fileLabel').innerText = "📸 НАЖМИ СЮДА И ВЫБЕРИ ФОТО";
+        base64Images = []; 
+        loadProducts();
+      } catch (err) {
+        alert("Ошибка сохранения в базу данных: " + err.message);
+        console.error(err);
+      } finally {
+        btn.innerText = "Опубликовать на витрину"; 
+        btn.disabled = false;
       }
-      btn.innerText = "Опубликовать на витрину"; btn.disabled = false;
     }
 
     async function loadProducts() {
       const container = document.getElementById('productsAdminList');
-      const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
-      if (error || !data) { container.innerText = "Ошибка загрузки витрины."; return; }
-      if(data.length === 0) { container.innerText = "На витрине нет товаров."; return; }
+      try {
+        const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+        if (error) throw error;
+        
+        if (!data || data.length === 0) { 
+          container.innerText = "На витрине пока нет добавленных товаров."; 
+          return; 
+        }
 
-      container.innerHTML = '';
-      data.forEach(item => {
-        const firstImg = item.image.split(',')[0];
-        const row = document.createElement('div');
-        row.className = 'product-list-item';
-        row.innerHTML = `
-          <div class="prod-meta">
-            <img src="${firstImg}" class="prod-img">
-            <div class="prod-details">
-              <div class="prod-title">${item.title}</div>
-              <div class="prod-price">${item.price} TMT | <span style="color:var(--text-muted)">${item.category}</span></div>
+        container.innerHTML = '';
+        data.forEach(item => {
+          // Берем первую картинку для отображения в списке
+          const firstImg = item.image ? item.image.split(',')[0] : '';
+          const row = document.createElement('div');
+          row.className = 'product-list-item';
+          row.innerHTML = `
+            <div class="prod-meta">
+              <img src="${firstImg}" class="prod-img" onerror="this.src='https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=100'">
+              <div class="prod-details">
+                <div class="prod-title">${item.title}</div>
+                <div class="prod-price">${item.price} TMT | <span style="color:var(--text-muted)">${item.category}</span></div>
+              </div>
             </div>
-          </div>
-          <button class="btn-delete" onclick="deleteProduct(${item.id})">Удалить</button>
-        `;
-        container.appendChild(row);
-      });
+            <button class="btn-delete" onclick="deleteProduct(${item.id})">Удалить</button>
+          `;
+          container.appendChild(row);
+        });
+      } catch (err) {
+        container.innerText = "Не удалось загрузить список товаров.";
+        console.error(err);
+      }
     }
 
     async function deleteProduct(id) {
-      if(!confirm("Удалить этот товар из магазина?")) return;
+      if (!confirm("Вы действительно хотите удалить этот товар из магазина?")) return;
       const { error } = await supabase.from('products').delete().eq('id', id);
-      if(!error) loadProducts();
+      if (!error) loadProducts();
     }
 
     async function loadOrders() {
-      const { data, error } = await supabase.from('orders').select('*').order('id', { ascending: false });
-      if (error || !data) return;
-      document.getElementById('ordersCount').innerText = data.length;
-      
-      const container = document.getElementById('ordersContainer');
-      if(data.length === 0) {
-        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Заказов пока нет</div>`; return;
-      }
+      try {
+        const { data, error } = await supabase.from('orders').select('*').order('id', { ascending: false });
+        if (error || !data) return;
+        document.getElementById('ordersCount').innerText = data.length;
+        
+        const container = document.getElementById('ordersContainer');
+        if (data.length === 0) {
+          container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Заказов пока нет</div>`; 
+          return;
+        }
 
-      container.innerHTML = '';
-      data.forEach(order => {
-        const date = new Date(order.created_at).toLocaleString('ru-RU', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' });
-        const card = document.createElement('div');
-        card.className = 'order-card';
-        card.innerHTML = `
-          <div class="order-header"><span>ЗАКАЗ №${order.id}</span><span>${date}</span></div>
-          <div class="order-row"><div class="order-label">Клиент:</div><div class="order-value" style="color:var(--gold);">${order.name}</div></div>
-          <div class="order-row"><div class="order-label">Телефон:</div><div class="order-value"><a href="tel:${order.phone}" class="order-phone-link">${order.phone}</a></div></div>
-          <div class="order-row"><div class="order-label">Товар:</div><div class="order-value">${order.product_title}</div></div>
-          <div class="order-row"><div class="order-label">Категория:</div><div class="order-value" style="color:var(--text-muted); font-size:13px;">${order.category}</div></div>
-          <div class="order-row"><div class="order-label">Сумма:</div><div class="order-value" style="color:var(--gold); font-weight:700;">${order.price} TMT</div></div>
-        `;
-        container.appendChild(card);
-      });
+        container.innerHTML = '';
+        data.forEach(order => {
+          const date = new Date(order.created_at).toLocaleString('ru-RU', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' });
+          const card = document.createElement('div');
+          card.className = 'order-card';
+          card.innerHTML = `
+            <div class="order-header"><span>ЗАКАЗ №${order.id}</span><span>${date}</span></div>
+            <div class="order-row"><div class="order-label">Клиент:</div><div class="order-value" style="color:var(--gold);">${order.name}</div></div>
+            <div class="order-row"><div class="order-label">Телефон:</div><div class="order-value"><a href="tel:${order.phone}" class="order-phone-link">${order.phone}</a></div></div>
+            <div class="order-row"><div class="order-label">Товар:</div><div class="order-value">${order.product_title}</div></div>
+            <div class="order-row"><div class="order-label">Категория:</div><div class="order-value" style="color:var(--text-muted); font-size:13px;">${order.category}</div></div>
+            <div class="order-row"><div class="order-label">Сумма:</div><div class="order-value" style="color:var(--gold); font-weight:700;">${order.price} TMT</div></div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     function openOrdersModal() {
-      document.getElementById('ordersModal').style.display = 'flex'; loadOrders();
+      document.getElementById('ordersModal').style.display = 'flex'; 
+      loadOrders();
     }
     function closeOrdersModal(event) {
-      if(event.target.id === 'ordersModal') document.getElementById('ordersModal').style.display = 'none';
+      if (event.target.id === 'ordersModal') document.getElementById('ordersModal').style.display = 'none';
     }
 
-    loadProducts(); loadOrders();
-    setInterval(loadOrders, 15000); // Автоматическое обновление заказов раз в 15 сек
+    // Инициализация при загрузке
+    loadProducts(); 
+    loadOrders();
+    // Каждые 15 секунд автоматически проверяем новые заказы
+    setInterval(loadOrders, 15000); 
   </script>
 </body>
 </html>
